@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-abstract class ILoginEvent extends Equatable {}
+abstract class ISignupEvent extends Equatable {}
 
-class AttemptLoginEvent extends ILoginEvent {
+class AttemptSignupEvent extends ISignupEvent {
   @override
   List<Object> get props => [];
 
@@ -10,16 +10,16 @@ class AttemptLoginEvent extends ILoginEvent {
   String toString() => 'AttemptLoginEvent{  }';
 }
 
-class LoginCredentialsValidatedEvent extends ILoginEvent {
+class SignupCredentialsValidatedEvent extends ISignupEvent {
   final String email;
   final String password;
 
-  LoginCredentialsValidatedEvent(this.email, this.password);
+  SignupCredentialsValidatedEvent(this.email, this.password);
 
   @override
   List<Object> get props => [email, password];
 
   @override
   String toString() =>
-      'LoginCredentialsValidatedEvent{ email: $email, password: $password }';
+      'SignupCredentialsValidatedEvent{ email: $email, password: $password }';
 }

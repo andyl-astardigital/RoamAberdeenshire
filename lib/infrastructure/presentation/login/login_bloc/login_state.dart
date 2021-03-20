@@ -2,76 +2,51 @@ import 'package:equatable/equatable.dart';
 
 abstract class ILoginState extends Equatable {}
 
-//todo make this another bloc!
-class ErrorState extends ILoginState {
-  final String error;
-  ErrorState(this.error);
+class LoginState extends ILoginState {
+  LoginState();
+  @override
+  List<Object> get props => [];
 
   @override
-  List<Object> get props => [error];
-
-  @override
-  String toString() => 'ErrorState { error:$error }';
+  String toString() => 'LoginState{  }';
 }
 
-class LoginState extends ILoginState {
+class AttemptLoginState extends ILoginState {
   final String email;
-  final bool emailInvalid;
   final String password;
-  final bool passwordIsMissing;
-  final bool passwordVisible;
-  final bool signUpMode;
 
-  LoginState(
-      this.email, this.emailInvalid, this.password, this.passwordVisible, this.passwordIsMissing, this.signUpMode);
+  AttemptLoginState(this.email, this.password);
 
-  LoginState.init(
-      {this.email = "",
-      this.emailInvalid = false,
-      this.password = "",
-      this.passwordVisible = false,
-      this.passwordIsMissing = false,
-      this.signUpMode = false});
+  AttemptLoginState.init({
+    this.email = "",
+    this.password = "",
+  });
 
-  LoginState copyWith({
+  AttemptLoginState copyWith({
     String email,
-    bool emailInvalid,
     String password,
-    bool passwordVisible,
-    bool passwordIsMissing,
-    bool signUpMode
   }) {
-    return LoginState(
+    return AttemptLoginState(
       email ?? this.email,
-      emailInvalid ?? this.emailInvalid,
       password ?? this.password,
-      passwordVisible ?? this.passwordVisible,
-      passwordIsMissing ?? this.passwordIsMissing,
-      signUpMode ?? this.signUpMode
     );
   }
 
   @override
   List<Object> get props => [
         email,
-        emailInvalid,
         password,
-        passwordVisible,
-        passwordIsMissing,
-        signUpMode
       ];
 
   @override
-  String toString() => 'LoginState{ email:$email, emailInvalid:$emailInvalid. password:$password, passwordVisible:$passwordVisible, passwordIsMissing:$passwordIsMissing, isSignUpMode:$signUpMode }';
+  String toString() => 'AttemptLoginState{ email:$email, password:$password }';
 }
 
-class LoggingInState extends ILoginState {
-  final String email;
-
-  LoggingInState(this.email);
+class ValidateLoginState extends ILoginState {
+  ValidateLoginState();
   @override
-  List<Object> get props => [email];
+  List<Object> get props => [];
 
   @override
-  String toString() => 'LoggingInState{ email:$email }';
+  String toString() => 'ValidateLoginState{  }';
 }

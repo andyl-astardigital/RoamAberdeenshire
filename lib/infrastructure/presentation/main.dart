@@ -2,12 +2,16 @@ import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_usecase.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/data/firebase_user_repository.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/theme.dart';
-import 'authentication/authentication.dart';
-import 'login/login.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
+import 'login/login_exports.dart';
+import 'navigation/navigation_exports.dart';
 import 'shared/ui_constants.dart';
 
 class SimpleBlocObserver extends BlocObserver {
@@ -41,35 +45,57 @@ Future<void> main() async {
   Widget buildBlocs() {
     //instatiate
 
-    var authBloc = AuthenticationBloc();
-    var loginBloc = LoginBlocImpl(LoginUseCaseImpl(FirebaseUserRepository()),
+    var navigationBloc = NavigationBloc();
+    var loginBloc = LoginBlocImpl(LoginUseCaseImpl(FirebaseUserRepository()));
+    var credentialsBloc = CredentialsBlocImpl(
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
+    var signupBloc = SignupBlocImpl(SignupUseCaseImpl(FirebaseUserRepository(),
+        ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl()));
 
-    //wire up the listeners
-    authBloc.stream.listen((state) {
-      if (state is AuthErrorState) {
-        loginBloc.add(AuthErrorEvent(state.error));
+    loginBloc.stream.listen((state) {
+      if (state is ValidateLoginState) {
+        credentialsBloc.add(ValidateLoginEvent());
       }
     });
 
-    loginBloc.stream.listen((state) {
-      if (state is LoggingInState) {
-        //check if this is a new email
-        authBloc.add(LoginAttemptEvent(state.email));
+    signupBloc.stream.listen((state) {
+      if (state is ValidateSignupState) {
+        credentialsBloc.add(ValidateSignupEvent());
+      }
+    });
+
+    credentialsBloc.stream.listen((state) {
+      if (state is ValidSignupCredentialsState) {
+        signupBloc
+            .add(SignupCredentialsValidatedEvent(state.email, state.password));
+      }
+      if (state is ValidLoginCredentialsState) {
+        loginBloc
+            .add(LoginCredentialsValidatedEvent(state.email, state.password));
       }
     });
 
     //plumb into flutter_bloc providers
     return MultiBlocProvider(
       providers: [
-        BlocProvider<AuthenticationBloc>(
+        BlocProvider<NavigationBloc>(
           create: (context) {
-            return authBloc;
+            return navigationBloc;
           },
         ),
         BlocProvider<LoginBloc>(
           create: (context) {
             return loginBloc;
+          },
+        ),
+        BlocProvider<CredentialsBloc>(
+          create: (context) {
+            return credentialsBloc;
+          },
+        ),
+        BlocProvider<SignupBloc>(
+          create: (context) {
+            return signupBloc;
           },
         ),
       ],
@@ -82,26 +108,33 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   MyApp({Key key}) : super(key: key);
-  final loginPage = LoginPage();
+  final loginPage = Login();
 
   @override
   Widget build(BuildContext context) {
-    context.read<AuthenticationBloc>().add(AppStartedEvent());
+    context.read<NavigationBloc>().add(ShowLoginPageEvent());
     return MaterialApp(
         title: UIConstants.appTitle,
         debugShowCheckedModeBanner: false,
         theme: myTheme,
-        home: BlocBuilder<AuthenticationBloc, IAuthenticationState>(
-            builder: (context, authState) {
+        home: BlocBuilder<NavigationBloc, INavigationState>(
+            builder: (context, state) {
           return BlocBuilder<LoginBloc, ILoginState>(
               builder: (context, loginState) {
             try {
-              if (authState is NotSignedInState) {
-                return LoginPage();
-              } else if (authState is SignedInState) {
+              if (state is ShowLoginPageState) {
+                return Login();
+              }
+              if (state is ShowSignupPageState) {
+                return Signup();
+              }
+              if (state is ShowForgotPasswordPageState) {
                 return Container();
               }
-              return LoginPage();
+              if (state is ShowHomePageState) {
+                return Container();
+              }
+              return Login();
             } catch (e) {
               // ScaffoldMessenger().ScaffoldMessenger.showSnackBar(
               //   SnackBar(

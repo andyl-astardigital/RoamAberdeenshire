@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
 
-import 'login.dart';
-
 class SocialLoginsConstants {
   static final Key twitterButtonKey = Key("btnTwitter");
   static final String twitterLabel = "Twitter";
@@ -28,7 +26,8 @@ class SocialLogins extends StatelessWidget {
               Expanded(
                   flex: 1,
                   child: SizedBox(
-                      height: SocialLoginsConstants.buttonHeight, // specific value
+                      height:
+                          SocialLoginsConstants.buttonHeight, // specific value
                       child: Container(
                           padding: EdgeInsets.only(right: 10),
                           child: ElevatedButton(
@@ -37,7 +36,8 @@ class SocialLogins extends StatelessWidget {
                               ),
                               key: SocialLoginsConstants.twitterButtonKey,
                               child: Text(
-                                  SocialLoginsConstants.twitterLabel.toUpperCase(),
+                                  SocialLoginsConstants.twitterLabel
+                                      .toUpperCase(),
                                   style: TextStyle(fontSize: 20.0)),
                               onPressed: () {
                                 //context.read<LoginBloc>().add(LoggingInEvent());
@@ -45,7 +45,8 @@ class SocialLogins extends StatelessWidget {
               Expanded(
                   flex: 1,
                   child: SizedBox(
-                      height: SocialLoginsConstants.buttonHeight, // specific value
+                      height:
+                          SocialLoginsConstants.buttonHeight, // specific value
                       child: Container(
                           padding: EdgeInsets.only(left: 10),
                           child: ElevatedButton(
