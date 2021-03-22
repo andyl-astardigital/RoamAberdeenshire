@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:roam_aberdeenshire/domain/entities/user.dart';
 
 abstract class ILoginState extends Equatable {}
 
@@ -11,42 +12,35 @@ class LoginState extends ILoginState {
   String toString() => 'LoginState{  }';
 }
 
-class AttemptLoginState extends ILoginState {
-  final String email;
-  final String password;
+class LoginSuccessfulState extends ILoginState {
+  final User user;
 
-  AttemptLoginState(this.email, this.password);
-
-  AttemptLoginState.init({
-    this.email = "",
-    this.password = "",
-  });
-
-  AttemptLoginState copyWith({
-    String email,
-    String password,
-  }) {
-    return AttemptLoginState(
-      email ?? this.email,
-      password ?? this.password,
-    );
-  }
+  LoginSuccessfulState(this.user);
 
   @override
   List<Object> get props => [
-        email,
-        password,
+        user,
       ];
 
   @override
-  String toString() => 'AttemptLoginState{ email:$email, password:$password }';
+  String toString() => 'LoginSuccessfulState{ user:$user }';
 }
 
-class ValidateLoginState extends ILoginState {
-  ValidateLoginState();
+class LoginValidateState extends ILoginState {
+  LoginValidateState();
   @override
   List<Object> get props => [];
 
   @override
   String toString() => 'ValidateLoginState{  }';
+}
+
+class LoginErrorState extends ILoginState {
+  final String error;
+  LoginErrorState(this.error);
+  @override
+  List<Object> get props => [error];
+
+  @override
+  String toString() => 'LoginErrorState{ error: $error }';
 }

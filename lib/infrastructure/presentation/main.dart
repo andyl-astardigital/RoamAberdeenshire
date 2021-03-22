@@ -8,8 +8,8 @@ import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_us
 import 'package:roam_aberdeenshire/infrastructure/data/firebase_user_repository.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/theme.dart';
-import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
+import 'error/error_exports.dart';
 import 'login/login_exports.dart';
 import 'navigation/navigation_exports.dart';
 import 'shared/ui_constants.dart';
@@ -51,30 +51,45 @@ Future<void> main() async {
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
     var signupBloc = SignupBlocImpl(SignupUseCaseImpl(FirebaseUserRepository(),
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl()));
+    var errorBloc = ErrorBlocImpl();
 
     loginBloc.stream.listen((state) {
-      if (state is ValidateLoginState) {
-        credentialsBloc.add(ValidateLoginEvent());
+      if (state is LoginValidateState) {
+        credentialsBloc.add(CredentialsValidateLoginEvent());
+      }
+      if (state is LoginErrorState) {
+        errorBloc.add(ErrorShowErrorEvent(state.error));
       }
     });
 
     signupBloc.stream.listen((state) {
-      if (state is ValidateSignupState) {
-        credentialsBloc.add(ValidateSignupEvent());
+      if (state is SignupValidateState) {
+        credentialsBloc.add(CredentialsValidateSignupEvent());
+      }
+      if (state is SignupErrorState) {
+        errorBloc.add(ErrorShowErrorEvent(state.error));
       }
     });
 
     credentialsBloc.stream.listen((state) {
-      if (state is ValidSignupCredentialsState) {
+      if (state is CredentialsValidSignupState) {
         signupBloc
             .add(SignupCredentialsValidatedEvent(state.email, state.password));
       }
-      if (state is ValidLoginCredentialsState) {
+      if (state is CredentialsValidLoginState) {
         loginBloc
             .add(LoginCredentialsValidatedEvent(state.email, state.password));
       }
     });
 
+    navigationBloc.stream.listen((state) {
+      if (state is NavigationShowLoginState) {
+        credentialsBloc.add(CredentialsResetValidationEvent());
+      }
+      if (state is NavigationShowSignupState) {
+        credentialsBloc.add(CredentialsResetValidationEvent());
+      }
+    });
     //plumb into flutter_bloc providers
     return MultiBlocProvider(
       providers: [
@@ -98,6 +113,11 @@ Future<void> main() async {
             return signupBloc;
           },
         ),
+        BlocProvider<ErrorBloc>(
+          create: (context) {
+            return errorBloc;
+          },
+        ),
       ],
       child: MyApp(),
     );
@@ -109,10 +129,25 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   MyApp({Key key}) : super(key: key);
   final loginPage = Login();
+  getNav(INavigationState state) {
+    if (state is NavigationShowLoginState) {
+      return Login();
+    }
+    if (state is NavigationShowSignupState) {
+      return Signup();
+    }
+    if (state is NavigationShowForgotPasswordState) {
+      return Container();
+    }
+    if (state is NavigationShowHomeState) {
+      return Container();
+    }
+    return Login();
+  }
 
   @override
   Widget build(BuildContext context) {
-    context.read<NavigationBloc>().add(ShowLoginPageEvent());
+    context.read<NavigationBloc>().add(NavigationShowLoginEvent());
     return MaterialApp(
         title: UIConstants.appTitle,
         debugShowCheckedModeBanner: false,
@@ -121,29 +156,7 @@ class MyApp extends StatelessWidget {
             builder: (context, state) {
           return BlocBuilder<LoginBloc, ILoginState>(
               builder: (context, loginState) {
-            try {
-              if (state is ShowLoginPageState) {
-                return Login();
-              }
-              if (state is ShowSignupPageState) {
-                return Signup();
-              }
-              if (state is ShowForgotPasswordPageState) {
-                return Container();
-              }
-              if (state is ShowHomePageState) {
-                return Container();
-              }
-              return Login();
-            } catch (e) {
-              // ScaffoldMessenger().ScaffoldMessenger.showSnackBar(
-              //   SnackBar(
-              //     content: Text('${e.toString()}'),
-              //     backgroundColor: Colors.red,
-              //   ),
-              // );
-            }
-            return Container();
+            return Scaffold(body: Stack(children: [getNav(state), Error()]));
           });
         }));
   }

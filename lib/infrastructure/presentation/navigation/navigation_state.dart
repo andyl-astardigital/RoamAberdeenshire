@@ -2,45 +2,34 @@ import 'package:equatable/equatable.dart';
 
 abstract class INavigationState extends Equatable {}
 
-class ShowLoginPageState extends INavigationState {
+class NavigationShowLoginState extends INavigationState {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowLoginPageState { }';
+  String toString() => 'NavigationShowLoginState { }';
 }
 
-class ShowSignupPageState extends INavigationState {
+class NavigationShowSignupState extends INavigationState {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowSignupPageState { }';
+  String toString() => 'NavigationShowSignupState { }';
 }
 
-class ShowForgotPasswordPageState extends INavigationState {
+class NavigationShowForgotPasswordState extends INavigationState {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowForgotPasswordPageState { }';
+  String toString() => 'NavigationShowForgotPasswordState { }';
 }
 
-class ShowHomePageState extends INavigationState {
+class NavigationShowHomeState extends INavigationState {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowHomePageState { }';
-}
-
-class ShowErrorState extends INavigationState {
-  final String error;
-
-  ShowErrorState(this.error);
-  @override
-  List<Object> get props => [error];
-
-  @override
-  String toString() => 'ShowErrorState { error: $error }';
+  String toString() => 'NavigationShowHomeState { }';
 }

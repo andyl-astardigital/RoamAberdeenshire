@@ -19,4 +19,7 @@ class UIConstants {
 
   //general
   static final String appTitle = "RoamAberdeenshire";
+
+  static final String genericError =
+      "Something went wrong; please try again or email our support team.";
 }

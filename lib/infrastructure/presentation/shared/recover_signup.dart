@@ -34,7 +34,7 @@ class RecoverSignup extends StatelessWidget {
                       onPressed: () {
                         context
                             .read<NavigationBloc>()
-                            .add(ShowForgotPageEvent());
+                            .add(NavigationShowForgotEvent());
                       }))),
           Expanded(
               flex: 1,
@@ -52,7 +52,7 @@ class RecoverSignup extends StatelessWidget {
                       onPressed: () {
                         context
                             .read<NavigationBloc>()
-                            .add(ShowSignupPageEvent());
+                            .add(NavigationShowSignupEvent());
                       })))
         ],
       )

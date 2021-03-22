@@ -25,54 +25,52 @@ class Signup extends StatelessWidget {
         child: BlocBuilder<SignupBloc, ISignupState>(
           builder: (context, state) {
             if (state is SignupState) {
-              return Scaffold(
-                  body: Center(
-                      child: Container(
-                          padding: EdgeInsets.all(40.0),
-                          child: SingleChildScrollView(
-                            child: ListView(
-                              shrinkWrap: true,
-                              children: [
-                                Container(
-                                    padding: EdgeInsets.only(bottom: 40),
-                                    child: Center(
-                                        key: SignupConstants.titleImage,
-                                        child: Image.asset(
-                                            "lib/infrastructure/presentation/resources/RoamABZ.png"))),
-                                Credentials(),
-                                SizedBox(
-                                    height: SignupConstants.buttonHeight,
-                                    child: TextButton(
-                                        style: TextButton.styleFrom(
-                                          primary:
-                                              Theme.of(context).accentColor,
-                                        ),
-                                        key: SignupConstants.loginButtonKey,
-                                        child: Text(
-                                          SignupConstants.loginButtonLabel,
-                                          textAlign: TextAlign.right,
-                                        ),
-                                        onPressed: () {
-                                          context
-                                              .read<NavigationBloc>()
-                                              .add(ShowLoginPageEvent());
-                                        })),
-                                SizedBox(
-                                    height: SignupConstants
-                                        .buttonHeight, // specific value
-                                    child: ElevatedButton(
-                                        key: SignupConstants.signupButtonKey,
-                                        child: Text(
-                                            SignupConstants.signupButtonLabel,
-                                            style: TextStyle(fontSize: 20.0)),
-                                        onPressed: () {
-                                          context
-                                              .read<SignupBloc>()
-                                              .add(AttemptSignupEvent());
-                                        })),
-                              ],
-                            ),
-                          ))));
+              return Center(
+                  child: Container(
+                      padding: EdgeInsets.all(40.0),
+                      child: SingleChildScrollView(
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            Container(
+                                padding: EdgeInsets.only(bottom: 40),
+                                child: Center(
+                                    key: SignupConstants.titleImage,
+                                    child: Image.asset(
+                                        "lib/infrastructure/presentation/resources/RoamABZ.png"))),
+                            Credentials(),
+                            SizedBox(
+                                height: SignupConstants.buttonHeight,
+                                child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: Theme.of(context).accentColor,
+                                    ),
+                                    key: SignupConstants.loginButtonKey,
+                                    child: Text(
+                                      SignupConstants.loginButtonLabel,
+                                      textAlign: TextAlign.right,
+                                    ),
+                                    onPressed: () {
+                                      context
+                                          .read<NavigationBloc>()
+                                          .add(NavigationShowLoginEvent());
+                                    })),
+                            SizedBox(
+                                height: SignupConstants
+                                    .buttonHeight, // specific value
+                                child: ElevatedButton(
+                                    key: SignupConstants.signupButtonKey,
+                                    child: Text(
+                                        SignupConstants.signupButtonLabel,
+                                        style: TextStyle(fontSize: 20.0)),
+                                    onPressed: () {
+                                      context
+                                          .read<SignupBloc>()
+                                          .add(SignupValidateEvent());
+                                    })),
+                          ],
+                        ),
+                      )));
             }
             return Container();
           },

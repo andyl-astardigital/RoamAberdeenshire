@@ -2,12 +2,12 @@ import 'package:equatable/equatable.dart';
 
 abstract class ILoginEvent extends Equatable {}
 
-class AttemptLoginEvent extends ILoginEvent {
+class LoginValidateEvent extends ILoginEvent {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'AttemptLoginEvent{  }';
+  String toString() => 'LoginValidateEvent{  }';
 }
 
 class LoginCredentialsValidatedEvent extends ILoginEvent {

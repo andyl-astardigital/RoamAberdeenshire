@@ -52,22 +52,22 @@ class CredentialsState extends ICredentialsState {
       'CredentialsState{ email:$email, password:$password, passwordVisible: $passwordVisible, emailValid: $emailValid, passwordValid: $passwordValid, validateOnEntry: $validateOnEntry }';
 }
 
-class ValidLoginCredentialsState extends ICredentialsState {
+class CredentialsValidLoginState extends ICredentialsState {
   final String email;
   final String password;
 
-  ValidLoginCredentialsState(this.email, this.password);
+  CredentialsValidLoginState(this.email, this.password);
 
-  ValidLoginCredentialsState.init({
+  CredentialsValidLoginState.init({
     this.email = "",
     this.password = "",
   });
 
-  ValidLoginCredentialsState copyWith({
+  CredentialsValidLoginState copyWith({
     String email,
     String password,
   }) {
-    return ValidLoginCredentialsState(
+    return CredentialsValidLoginState(
       email ?? this.email,
       password ?? this.password,
     );
@@ -81,10 +81,37 @@ class ValidLoginCredentialsState extends ICredentialsState {
 
   @override
   String toString() =>
-      'ValidCredentialsState{ email:$email, password:$password }';
+      'CredentialsValidState{ email:$email, password:$password }';
 }
 
-class ValidSignupCredentialsState extends ValidLoginCredentialsState {
-  ValidSignupCredentialsState(String email, String password)
-      : super(email, password);
+class CredentialsValidSignupState extends ICredentialsState {
+  final String email;
+  final String password;
+
+  CredentialsValidSignupState(this.email, this.password);
+
+  CredentialsValidSignupState.init({
+    this.email = "",
+    this.password = "",
+  });
+
+  CredentialsValidSignupState copyWith({
+    String email,
+    String password,
+  }) {
+    return CredentialsValidSignupState(
+      email ?? this.email,
+      password ?? this.password,
+    );
+  }
+
+  @override
+  List<Object> get props => [
+        email,
+        password,
+      ];
+
+  @override
+  String toString() =>
+      'CredentialsValidSignupState{ email:$email, password:$password }';
 }

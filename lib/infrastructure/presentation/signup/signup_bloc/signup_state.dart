@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:roam_aberdeenshire/domain/entities/user.dart';
 
 abstract class ISignupState extends Equatable {}
 
@@ -42,11 +43,35 @@ class AttemptSignupState extends ISignupState {
   String toString() => 'AttemptSignupState{ email:$email, password:$password }';
 }
 
-class ValidateSignupState extends ISignupState {
-  ValidateSignupState();
+class SignupValidateState extends ISignupState {
+  SignupValidateState();
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ValidateSignupState{  }';
+  String toString() => 'SignupValidateState{  }';
+}
+
+class SignupSuccessfulState extends ISignupState {
+  final User user;
+
+  SignupSuccessfulState(this.user);
+
+  @override
+  List<Object> get props => [
+        user,
+      ];
+
+  @override
+  String toString() => 'SignupSuccessfulState{ user:$user }';
+}
+
+class SignupErrorState extends ISignupState {
+  final String error;
+  SignupErrorState(this.error);
+  @override
+  List<Object> get props => [error];
+
+  @override
+  String toString() => 'SignupErrorState{ error: $error }';
 }

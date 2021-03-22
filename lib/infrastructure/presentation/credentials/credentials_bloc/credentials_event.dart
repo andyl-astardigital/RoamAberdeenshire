@@ -2,66 +2,76 @@ import 'package:equatable/equatable.dart';
 
 abstract class ICredentialsEvent extends Equatable {}
 
-class EmailChangedEvent extends ICredentialsEvent {
+class CredentialsEmailChangedEvent extends ICredentialsEvent {
   final String email;
 
-  EmailChangedEvent(this.email);
+  CredentialsEmailChangedEvent(this.email);
 
   @override
   List<Object> get props => [email];
 
   @override
-  String toString() => 'EmailChangedEvent{ email: $email }';
+  String toString() => 'CredentialsEmailChangedEvent{ email: $email }';
 }
 
-class PasswordChangedEvent extends ICredentialsEvent {
+class CredentialsPasswordChangedEvent extends ICredentialsEvent {
   final String password;
 
-  PasswordChangedEvent(this.password);
+  CredentialsPasswordChangedEvent(this.password);
 
   @override
   List<Object> get props => [password];
 
   @override
-  String toString() => 'EmailChangedEvent{ password: $password }';
+  String toString() => 'CredentialsEmailChangedEvent{ password: $password }';
 }
 
-class TogglePasswordVisibilityEvent extends ICredentialsEvent {
-  TogglePasswordVisibilityEvent();
+class CredentialsTogglePasswordVisibilityEvent extends ICredentialsEvent {
+  CredentialsTogglePasswordVisibilityEvent();
 
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'TogglePasswordVisibilityEvent{ }';
+  String toString() => 'CredentialsTogglePasswordVisibilityEvent{ }';
 }
 
-class ToggleValidateOnEntryEvent extends ICredentialsEvent {
-  ToggleValidateOnEntryEvent();
+class CredentialsToggleValidateOnEntryEvent extends ICredentialsEvent {
+  CredentialsToggleValidateOnEntryEvent();
 
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ToggleValidateOnEntryEvent{ }';
+  String toString() => 'CredentialsToggleValidateOnEntryEvent{ }';
 }
 
-class ValidateLoginEvent extends ICredentialsEvent {
-  ValidateLoginEvent();
+class CredentialsValidateLoginEvent extends ICredentialsEvent {
+  CredentialsValidateLoginEvent();
 
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ValidateEvent{ }';
+  String toString() => 'CredentialsValidateEvent{ }';
 }
 
-class ValidateSignupEvent extends ICredentialsEvent {
-  ValidateSignupEvent();
+class CredentialsValidateSignupEvent extends ICredentialsEvent {
+  CredentialsValidateSignupEvent();
 
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ValidateSignupEvent{ }';
+  String toString() => 'CredentialsValidateSignupEvent{ }';
+}
+
+class CredentialsResetValidationEvent extends ICredentialsEvent {
+  CredentialsResetValidationEvent();
+
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'CredentialsResetValidationEvent{ }';
 }

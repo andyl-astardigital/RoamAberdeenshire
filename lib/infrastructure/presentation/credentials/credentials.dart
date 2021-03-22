@@ -14,11 +14,20 @@ class CredentialsConstants {
 }
 
 class Credentials extends StatelessWidget {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CredentialsBloc, ICredentialsState>(
         builder: (context, state) {
       if (state is CredentialsState) {
+        emailController.value =
+            emailController.value.copyWith(text: state.email);
+
+        passwordController.value =
+            passwordController.value.copyWith(text: state.password);
+
         return Column(children: <Widget>[
           Center(
               child: Container(
@@ -26,9 +35,10 @@ class Credentials extends StatelessWidget {
                   child: TextField(
                     key: CredentialsConstants.emailTxtKey,
                     keyboardType: TextInputType.emailAddress,
+                    controller: emailController,
                     onChanged: (value) => context
                         .read<CredentialsBloc>()
-                        .add(EmailChangedEvent(value)),
+                        .add(CredentialsEmailChangedEvent(value)),
                     decoration: InputDecoration(
                         errorText: state.emailValid
                             ? null
@@ -42,18 +52,18 @@ class Credentials extends StatelessWidget {
                     obscureText: !state.passwordVisible,
                     key: CredentialsConstants.passwordTxtKey,
                     keyboardType: TextInputType.visiblePassword,
+                    controller: passwordController,
                     onChanged: (value) => context
                         .read<CredentialsBloc>()
-                        .add(PasswordChangedEvent(value)),
+                        .add(CredentialsPasswordChangedEvent(value)),
                     decoration: InputDecoration(
                         labelText: CredentialsConstants.passwordLabel,
                         errorText: state.passwordValid
                             ? null
                             : CredentialsConstants.passwordInvalid,
                         suffix: InkWell(
-                            onTap: () => context
-                                .read<CredentialsBloc>()
-                                .add(TogglePasswordVisibilityEvent()),
+                            onTap: () => context.read<CredentialsBloc>().add(
+                                CredentialsTogglePasswordVisibilityEvent()),
                             child: Icon(Icons.visibility))),
                   )))
         ]);

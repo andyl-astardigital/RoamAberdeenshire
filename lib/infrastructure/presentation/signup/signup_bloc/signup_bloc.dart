@@ -1,5 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
 
 import '../signup_exports.dart';
 
@@ -16,14 +18,26 @@ class SignupBlocImpl extends SignupBloc {
   Stream<ISignupState> mapEventToState(
     ISignupEvent event,
   ) async* {
-    if (state is AttemptSignupState) {
-      var theState = state as AttemptSignupState;
-      if (event is AttemptSignupEvent) {
-        yield ValidateSignupState();
+    if (state is SignupState) {
+      var theState = state as SignupState;
+      if (event is SignupValidateEvent) {
+        yield SignupValidateState();
         yield theState;
       }
+
       if (event is SignupCredentialsValidatedEvent) {
-        //we'll only receive this when there is a login being attempted so try to login
+        try {
+          var user = await signupUseCase.signup(event.email, event.password);
+          yield SignupSuccessfulState(user);
+        } on EmailInUseError catch (error) {
+          yield SignupErrorState(error.message);
+        } on DomainError catch (error) {
+          yield SignupErrorState(error.message);
+        } catch (error) {
+          yield SignupErrorState(UIConstants.genericError);
+        } finally {
+          yield theState;
+        }
       }
     }
   }

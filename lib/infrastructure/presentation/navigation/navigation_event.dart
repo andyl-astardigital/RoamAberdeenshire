@@ -2,45 +2,34 @@ import 'package:equatable/equatable.dart';
 
 abstract class INavigationEvent extends Equatable {}
 
-class ShowLoginPageEvent extends INavigationEvent {
+class NavigationShowLoginEvent extends INavigationEvent {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowLoginPageEvent{ }';
+  String toString() => 'NavigationShowLoginEvent{ }';
 }
 
-class ShowSignupPageEvent extends INavigationEvent {
+class NavigationShowSignupEvent extends INavigationEvent {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowSignupPageEvent{ }';
+  String toString() => 'NavigationShowSignupEvent{ }';
 }
 
-class ShowForgotPageEvent extends INavigationEvent {
+class NavigationShowForgotEvent extends INavigationEvent {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowForgotPageEvent{ }';
+  String toString() => 'NavigationShowForgotEvent{ }';
 }
 
-class ShowHomePageEvent extends INavigationEvent {
+class NavigationShowHomeEvent extends INavigationEvent {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'ShowHomePageEvent{ }';
-}
-
-class ShowErrorEvent extends INavigationEvent {
-  final String error;
-  ShowErrorEvent(this.error);
-
-  @override
-  List<Object> get props => [];
-
-  @override
-  String toString() => 'ShowErrorEvent{ error: $error }';
+  String toString() => 'NavigationShowHomeEvent{ }';
 }

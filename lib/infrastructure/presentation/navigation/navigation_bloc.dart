@@ -3,17 +3,17 @@ import 'package:bloc/bloc.dart';
 import 'navigation_exports.dart';
 
 class NavigationBloc extends Bloc<INavigationEvent, INavigationState> {
-  NavigationBloc() : super(ShowLoginPageState());
+  NavigationBloc() : super(NavigationShowLoginState());
 
   @override
   Stream<INavigationState> mapEventToState(
     INavigationEvent event,
   ) async* {
-    if (event is ShowLoginPageEvent) {
-      yield ShowLoginPageState();
+    if (event is NavigationShowLoginEvent) {
+      yield NavigationShowLoginState();
     }
-    if (event is ShowSignupPageEvent) {
-      yield ShowSignupPageState();
+    if (event is NavigationShowSignupEvent) {
+      yield NavigationShowSignupState();
     }
   }
 }
