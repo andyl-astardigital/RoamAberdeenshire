@@ -18,12 +18,12 @@ class NavigationShowSignupState extends INavigationState {
   String toString() => 'NavigationShowSignupState { }';
 }
 
-class NavigationShowForgotPasswordState extends INavigationState {
+class NavigationShowAccountRecoveryState extends INavigationState {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'NavigationShowForgotPasswordState { }';
+  String toString() => 'NavigationShowAccountRecoveryState { }';
 }
 
 class NavigationShowHomeState extends INavigationState {

@@ -34,7 +34,7 @@ class RecoverSignup extends StatelessWidget {
                       onPressed: () {
                         context
                             .read<NavigationBloc>()
-                            .add(NavigationShowForgotEvent());
+                            .add(NavigationShowAccountRecoveryEvent());
                       }))),
           Expanded(
               flex: 1,

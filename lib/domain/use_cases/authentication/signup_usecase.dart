@@ -43,13 +43,14 @@ class SignupUseCaseImpl implements SignupUseCase {
     }
     return Future.value(await userRepo
         .retrieveBy(({"email": email, "password": password}))
-        .then((value) {
+        .then((value) async {
       if (value != null && value.isNotEmpty) {
         return Future<User>.error(
             EmailInUseError(SignupUseCaseMessages.alreadyInUse, email));
       }
       User newUser = User(Uuid(), email, password);
-      return userRepo.create(newUser);
+      await userRepo.create(newUser);
+      return newUser;
     }, onError: (error) {
       return Future<User>.error(
           DomainError(SignupUseCaseMessages.problem, [email, password]));

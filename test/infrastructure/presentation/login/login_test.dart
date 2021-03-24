@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/login/login_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/shared/image_appbar.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/recover_signup.dart';
 
 class MockLoginBloc extends LoginBloc {
@@ -39,7 +40,7 @@ void main() {
     await pump(tester, MockLoginBloc(LoginState()),
         MockCredentialsBloc(CredentialsState.init()));
 
-    expect(find.byKey(LoginConstants.titleImage), findsOneWidget);
+    expect(find.byKey(ImageAppBarConstants.titleImage), findsOneWidget);
     expect(find.byKey(CredentialsConstants.emailTxtKey), findsOneWidget);
     expect(find.text(CredentialsConstants.emailInvalid), findsNothing);
     expect(find.byKey(CredentialsConstants.passwordTxtKey), findsOneWidget);

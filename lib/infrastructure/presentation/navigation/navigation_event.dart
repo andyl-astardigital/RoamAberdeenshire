@@ -18,12 +18,12 @@ class NavigationShowSignupEvent extends INavigationEvent {
   String toString() => 'NavigationShowSignupEvent{ }';
 }
 
-class NavigationShowForgotEvent extends INavigationEvent {
+class NavigationShowAccountRecoveryEvent extends INavigationEvent {
   @override
   List<Object> get props => [];
 
   @override
-  String toString() => 'NavigationShowForgotEvent{ }';
+  String toString() => 'NavigationShowForgotPasswordEvent{ }';
 }
 
 class NavigationShowHomeEvent extends INavigationEvent {

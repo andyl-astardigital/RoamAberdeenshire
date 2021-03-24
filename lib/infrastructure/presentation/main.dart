@@ -1,16 +1,19 @@
 import 'package:ansicolor/ansicolor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/account_recovery_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
+import 'package:roam_aberdeenshire/infrastructure/data/firebase_account_recovery_repository.dart';
 import 'package:roam_aberdeenshire/infrastructure/data/firebase_user_repository.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/theme.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
 import 'error/error_exports.dart';
 import 'login/login_exports.dart';
+import 'account_recovery/account_recovery_exports.dart';
 import 'navigation/navigation_exports.dart';
 import 'shared/ui_constants.dart';
 
@@ -52,6 +55,9 @@ Future<void> main() async {
     var signupBloc = SignupBlocImpl(SignupUseCaseImpl(FirebaseUserRepository(),
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl()));
     var errorBloc = ErrorBlocImpl();
+    var accountRecoveryBloc = AccountRecoveryBlocImpl(
+        AccountRecoveryUseCaseImpl(FirebaseUserRepository(),
+            FirebaseAccountRecoveryRepository(), ValidEmailUseCaseImpl()));
 
     loginBloc.stream.listen((state) {
       if (state is LoginValidateState) {
@@ -95,7 +101,7 @@ Future<void> main() async {
       providers: [
         BlocProvider<NavigationBloc>(
           create: (context) {
-            return navigationBloc;
+            return navigationBloc..add(NavigationShowLoginEvent());
           },
         ),
         BlocProvider<LoginBloc>(
@@ -111,6 +117,11 @@ Future<void> main() async {
         BlocProvider<SignupBloc>(
           create: (context) {
             return signupBloc;
+          },
+        ),
+        BlocProvider<AccountRecoveryBloc>(
+          create: (context) {
+            return accountRecoveryBloc;
           },
         ),
         BlocProvider<ErrorBloc>(
@@ -129,35 +140,40 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   MyApp({Key key}) : super(key: key);
   final loginPage = Login();
-  getNav(INavigationState state) {
+
+  doNav(INavigationState state, BuildContext context) {
+    Widget page;
     if (state is NavigationShowLoginState) {
-      return Login();
-    }
-    if (state is NavigationShowSignupState) {
-      return Signup();
-    }
-    if (state is NavigationShowForgotPasswordState) {
-      return Container();
-    }
-    if (state is NavigationShowHomeState) {
-      return Container();
-    }
-    return Login();
+      page = Login();
+    } else if (state is NavigationShowSignupState) {
+      page = Signup();
+    } else if (state is NavigationShowAccountRecoveryState) {
+      page = AccountRecovery();
+    } else if (state is NavigationShowHomeState) {
+      page = Container();
+    } else
+      page = Login();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return page;
+      }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    context.read<NavigationBloc>().add(NavigationShowLoginEvent());
     return MaterialApp(
         title: UIConstants.appTitle,
         debugShowCheckedModeBanner: false,
         theme: myTheme,
-        home: BlocBuilder<NavigationBloc, INavigationState>(
-            builder: (context, state) {
-          return BlocBuilder<LoginBloc, ILoginState>(
-              builder: (context, loginState) {
-            return Scaffold(body: Stack(children: [getNav(state), Error()]));
-          });
-        }));
+        home: BlocListener<NavigationBloc, INavigationState>(
+            listener: (context, state) {
+          doNav(state, context);
+        }, child: BlocBuilder<NavigationBloc, INavigationState>(
+                builder: (context, state) {
+          return Login();
+        })));
   }
 }

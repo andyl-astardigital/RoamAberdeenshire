@@ -4,11 +4,11 @@ import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/crede
 import 'package:roam_aberdeenshire/infrastructure/presentation/navigation/navigation_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/image_appbar.dart';
 
-import 'signup_exports.dart';
+import 'account_recovery_exports.dart';
 
-class SignupConstants {
-  static final Key signupButtonKey = Key("btnSingup");
-  static final String signupButtonLabel = "SIGNUP";
+class AccountRecoveryConstants {
+  static final Key sendButtonKey = Key("btnSend");
+  static final String signupButtonLabel = "RESET PASSWORD";
 
   static final Key loginButtonKey = Key("btnLogin");
   static final String loginButtonLabel = "Login";
@@ -18,14 +18,14 @@ class SignupConstants {
   static final double buttonHeight = 55.0;
 }
 
-class Signup extends StatelessWidget {
+class AccountRecovery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<SignupBloc, ISignupState>(
+    return BlocListener<AccountRecoveryBloc, IAccountRecoveryState>(
         listener: (context, state) {},
-        child: BlocBuilder<SignupBloc, ISignupState>(
+        child: BlocBuilder<AccountRecoveryBloc, IAccountRecoveryState>(
           builder: (context, state) {
-            if (state is SignupState) {
+            if (state is AccountRecoveryState) {
               return Scaffold(
                   appBar: PreferredSize(
                       preferredSize: Size.fromHeight(
@@ -39,14 +39,15 @@ class Signup extends StatelessWidget {
                           children: [
                             Credentials(),
                             SizedBox(
-                                height: SignupConstants.buttonHeight,
+                                height: AccountRecoveryConstants.buttonHeight,
                                 child: TextButton(
                                     style: TextButton.styleFrom(
                                       primary: Theme.of(context).accentColor,
                                     ),
-                                    key: SignupConstants.loginButtonKey,
+                                    key:
+                                        AccountRecoveryConstants.loginButtonKey,
                                     child: Text(
-                                      SignupConstants.loginButtonLabel,
+                                      AccountRecoveryConstants.loginButtonLabel,
                                       textAlign: TextAlign.right,
                                     ),
                                     onPressed: () {
@@ -55,17 +56,18 @@ class Signup extends StatelessWidget {
                                           .add(NavigationShowLoginEvent());
                                     })),
                             SizedBox(
-                                height: SignupConstants
+                                height: AccountRecoveryConstants
                                     .buttonHeight, // specific value
                                 child: ElevatedButton(
-                                    key: SignupConstants.signupButtonKey,
+                                    key: AccountRecoveryConstants.sendButtonKey,
                                     child: Text(
-                                        SignupConstants.signupButtonLabel,
+                                        AccountRecoveryConstants
+                                            .signupButtonLabel,
                                         style: TextStyle(fontSize: 20.0)),
                                     onPressed: () {
                                       context
-                                          .read<SignupBloc>()
-                                          .add(SignupValidateEvent());
+                                          .read<AccountRecoveryBloc>()
+                                          .add(AccountRecoveryValidateEvent());
                                     })),
                           ],
                         ),

@@ -31,4 +31,17 @@ void main() {
 
     navigationBloc.add(NavigationShowSignupEvent());
   });
+
+  test(
+      'emits NavigationShowAccountRecoveryState on NavigationShowAccountRecoveryEvent',
+      () async {
+    final expectedResponse = [NavigationShowAccountRecoveryState()];
+
+    expectLater(
+      navigationBloc.stream,
+      emitsInOrder(expectedResponse),
+    );
+
+    navigationBloc.add(NavigationShowAccountRecoveryEvent());
+  });
 }

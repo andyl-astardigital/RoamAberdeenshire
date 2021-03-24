@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/shared/image_appbar.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/recover_signup.dart';
 
 import 'login_exports.dart';
 
 class LoginConstants {
   static final Key loginButtonKey = Key("btnLogin");
-  static final String loginButtonLabel = "Login";
-
-  static final Key titleImage = Key("imgTitle");
-
+  static final String loginButtonLabel = "LOGIN";
   static final double buttonHeight = 55.0;
 }
 
@@ -22,19 +20,17 @@ class Login extends StatelessWidget {
         child: BlocBuilder<LoginBloc, ILoginState>(
           builder: (context, state) {
             if (state is LoginState) {
-              return Center(
-                  child: Container(
+              return Scaffold(
+                  appBar: PreferredSize(
+                      preferredSize: Size.fromHeight(
+                          MediaQuery.of(context).size.height * 0.30),
+                      child: ImageAppBar()),
+                  body: Container(
                       padding: EdgeInsets.all(40.0),
                       child: SingleChildScrollView(
                         child: ListView(
                           shrinkWrap: true,
                           children: [
-                            Container(
-                                padding: EdgeInsets.only(bottom: 40),
-                                child: Center(
-                                    key: LoginConstants.titleImage,
-                                    child: Image.asset(
-                                        "lib/infrastructure/presentation/resources/RoamABZ.png"))),
                             Credentials(),
                             RecoverSignup(),
                             SizedBox(
