@@ -1,8 +1,5 @@
-import 'package:uuid/uuid.dart';
-import 'package:roam_aberdeenshire/domain/shared/base_entity.dart';
-
-class AccountRecovery extends BaseEntity {
+class AccountRecovery {
   String email;
 
-  AccountRecovery(this.email) : super(Uuid());
+  AccountRecovery(this.email);
 }

@@ -1,11 +1,11 @@
 import 'package:roam_aberdeenshire/domain/entities/account_recovery.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/account_recovery_repository.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/user_repository.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_recovery_repository.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_repository.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 
-class RecoverPasswordUseCaseMessages {
+class AccountRecoveryUseCaseMessages {
   static final problem = "There was a problem recovering the account.";
   static final noAccount = "No account match the given details.";
 }
@@ -25,30 +25,31 @@ abstract class AccountRecoveryUseCase {
 ///Future will error with NoUserFoundError if there is no account for the email
 ///Future will error with DomainError on error
 class AccountRecoveryUseCaseImpl implements AccountRecoveryUseCase {
-  UserRepository userRepo;
-  AccountRecoveryRepository accountRecoveryRepository;
-  ValidEmailUseCase validEmailUseCase;
+  final AccountRecoveryRepository accountRecoveryRepository;
+  final AccountRepository accountRepository;
+  final ValidEmailUseCase validEmailUseCase;
 
-  AccountRecoveryUseCaseImpl(
-      this.userRepo, this.accountRecoveryRepository, this.validEmailUseCase);
+  AccountRecoveryUseCaseImpl(this.accountRepository,
+      this.accountRecoveryRepository, this.validEmailUseCase);
 
   Future<bool> recoverPassword(String email) async {
     if (!validEmailUseCase.validate(email)) {
       return Future.error(DomainError("Email is invalid ", email));
     }
-    return Future.value(
-        await userRepo.retrieveBy(({"email": email})).then((value) async {
+    return Future.value(await accountRepository
+        .retrieveBy(({"email": email}))
+        .then((value) async {
       if (value == null || value.isEmpty) {
         return Future<bool>.error(NoUserFoundError(
-            RecoverPasswordUseCaseMessages.noAccount, [email]));
+            AccountRecoveryUseCaseMessages.noAccount, [email]));
       }
 
       await accountRecoveryRepository.create(AccountRecovery(email));
 
       return true;
     }, onError: (error) {
-      return Future<User>.error(
-          DomainError(RecoverPasswordUseCaseMessages.problem, [email]));
+      return Future<AppUser>.error(
+          DomainError(AccountRecoveryUseCaseMessages.problem, [email]));
     }));
   }
 }

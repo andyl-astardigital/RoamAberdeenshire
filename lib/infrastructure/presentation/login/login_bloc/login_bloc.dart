@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/login/login_exports.dart';
@@ -26,7 +27,8 @@ class LoginBlocImpl extends LoginBloc {
 
       if (event is LoginCredentialsValidatedEvent) {
         try {
-          var user = await loginuseCase.login(event.email, event.password);
+          var user = await loginuseCase
+              .login(UserCredentials(event.email, event.password));
           yield LoginSuccessfulState(user);
         } on NoUserFoundError catch (error) {
           yield LoginErrorState(error.message);

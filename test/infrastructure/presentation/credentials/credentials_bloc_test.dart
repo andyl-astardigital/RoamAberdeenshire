@@ -1,4 +1,4 @@
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
@@ -11,7 +11,7 @@ String theEmail = "foo@bar.com";
 String theInvalidEmail = "foobar123";
 String thePassword = "!23FooBar-ForMe";
 Uuid id = Uuid();
-User theUser = User(Uuid(), theEmail, thePassword);
+AppUser theUser = AppUser("", theEmail);
 
 void main() {
   CredentialsBloc signupBloc;

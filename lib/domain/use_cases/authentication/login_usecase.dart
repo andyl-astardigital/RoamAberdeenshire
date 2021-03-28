@@ -1,5 +1,6 @@
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/user_repository.dart';
+import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/login_respository.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 
 class LoginUseCaseMessages {
@@ -8,11 +9,12 @@ class LoginUseCaseMessages {
 }
 
 class NoUserFoundError extends DomainError {
-  NoUserFoundError(String message, List<String> value) : super(message, value);
+  NoUserFoundError(String message, UserCredentials credentials)
+      : super(message, credentials);
 }
 
 abstract class LoginUseCase {
-  Future<User> login(String email, String password);
+  Future<AppUser> login(UserCredentials credentials);
 }
 
 ///Performs the logic to log a user in with the given details
@@ -21,22 +23,22 @@ abstract class LoginUseCase {
 ///Future will error with NoUserFoundError if the details do not match
 ///Future will error with DomainError on error
 class LoginUseCaseImpl implements LoginUseCase {
-  UserRepository userRepo;
+  final LoginRepository loginRepo;
 
-  LoginUseCaseImpl(this.userRepo);
+  LoginUseCaseImpl(this.loginRepo);
 
-  Future<User> login(String email, String password) async {
-    return Future<User>.value(await userRepo
-        .retrieveBy(({"email": email, "password": password}))
+  Future<AppUser> login(UserCredentials credentials) async {
+    return Future<AppUser>.value(await loginRepo
+        .create((UserCredentials(credentials.email, credentials.password)))
         .then((value) {
-      if (value != null && value.isNotEmpty) {
-        return value.first;
+      if (value != null) {
+        return value;
       }
-      return Future<User>.error(
-          NoUserFoundError(LoginUseCaseMessages.noAccount, [email, password]));
+      return Future<AppUser>.error(
+          NoUserFoundError(LoginUseCaseMessages.noAccount, credentials));
     }, onError: (error) {
-      return Future<User>.error(
-          DomainError(LoginUseCaseMessages.problem, [email, password]));
+      return Future<AppUser>.error(
+          DomainError(LoginUseCaseMessages.problem, credentials));
     }));
   }
 }

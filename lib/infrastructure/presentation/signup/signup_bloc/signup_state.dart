@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 
 abstract class ISignupState extends Equatable {}
 
@@ -53,7 +53,7 @@ class SignupValidateState extends ISignupState {
 }
 
 class SignupSuccessfulState extends ISignupState {
-  final User user;
+  final AppUser user;
 
   SignupSuccessfulState(this.user);
 

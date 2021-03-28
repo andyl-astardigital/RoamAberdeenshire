@@ -1,4 +1,6 @@
 import 'package:ansicolor/ansicolor.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/account_recovery_usecase.dart';
@@ -7,7 +9,9 @@ import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecas
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/data/firebase_account_recovery_repository.dart';
-import 'package:roam_aberdeenshire/infrastructure/data/firebase_user_repository.dart';
+import 'package:roam_aberdeenshire/infrastructure/data/firebase_account_repository.dart';
+import 'package:roam_aberdeenshire/infrastructure/data/firebase_login_repository.dart';
+import 'package:roam_aberdeenshire/infrastructure/data/firebase_signup_repository.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/theme.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
@@ -42,22 +46,33 @@ class SimpleBlocObserver extends BlocObserver {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
+  await Firebase.initializeApp();
   Bloc.observer = SimpleBlocObserver();
 
   Widget buildBlocs() {
     //instatiate
+    var loginRepository = FirebaseLoginRepository();
+    var signupRepository = FirebaseSignupRepository();
+    var accountRepository = FirebaseAccountRepository();
+    var accountRecoveryRepository = FirebaseAccountRecoveryRepository();
 
     var navigationBloc = NavigationBloc();
-    var loginBloc = LoginBlocImpl(LoginUseCaseImpl(FirebaseUserRepository()));
+    var loginBloc = LoginBlocImpl(LoginUseCaseImpl(loginRepository));
+
     var credentialsBloc = CredentialsBlocImpl(
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
-    var signupBloc = SignupBlocImpl(SignupUseCaseImpl(FirebaseUserRepository(),
-        ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl()));
+
+    var signupBloc = SignupBlocImpl(SignupUseCaseImpl(
+        signupRepository,
+        accountRepository,
+        ValidEmailUseCaseImpl(),
+        ValidPasswordUseCaseImpl()));
+
     var errorBloc = ErrorBlocImpl();
+
     var accountRecoveryBloc = AccountRecoveryBlocImpl(
-        AccountRecoveryUseCaseImpl(FirebaseUserRepository(),
-            FirebaseAccountRecoveryRepository(), ValidEmailUseCaseImpl()));
+        AccountRecoveryUseCaseImpl(accountRepository, accountRecoveryRepository,
+            ValidEmailUseCaseImpl()));
 
     loginBloc.stream.listen((state) {
       if (state is LoginValidateState) {
@@ -138,6 +153,8 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  // Create the initialization Future outside of `build`:
+
   MyApp({Key key}) : super(key: key);
   final loginPage = Login();
 

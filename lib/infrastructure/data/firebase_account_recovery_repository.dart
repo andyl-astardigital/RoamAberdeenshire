@@ -1,9 +1,12 @@
 import 'package:roam_aberdeenshire/domain/entities/account_recovery.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/account_recovery_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_recovery_repository.dart';
 
 class FirebaseAccountRecoveryRepository extends AccountRecoveryRepository {
+  FirebaseAuth auth = FirebaseAuth.instance;
+
   @override
-  Future<void> create(AccountRecovery obj) {
+  Future<bool> create(AccountRecovery obj) {
     // TODO: implement create
     throw UnimplementedError();
   }

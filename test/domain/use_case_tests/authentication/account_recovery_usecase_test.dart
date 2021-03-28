@@ -1,7 +1,7 @@
 import 'package:roam_aberdeenshire/domain/entities/account_recovery.dart';
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/account_recovery_repository.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/user_repository.dart';
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_recovery_repository.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_repository.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/account_recovery_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
@@ -11,35 +11,25 @@ import 'package:uuid/uuid.dart';
 String email = "foo@bar.com";
 Uuid id = Uuid();
 AccountRecovery theAccountRecovery = AccountRecovery(email);
-User theUser = User(Uuid(), email, "");
+AppUser theUser = AppUser("", email);
 
 class MockAccountRecoveryRepo extends AccountRecoveryRepository {
   @override
-  Future<void> create(AccountRecovery obj) {
-    return Future.value();
+  Future<bool> create(AccountRecovery obj) {
+    return Future.value(true);
   }
 }
 
 class MockAccountRecoveryReturnsErrorRepo extends AccountRecoveryRepository {
   @override
-  Future<void> create(AccountRecovery obj) {
+  Future<bool> create(AccountRecovery obj) {
     return Future.error("Borked");
   }
 }
 
-class MockUserRepo extends UserRepository {
+class MockAccountRepo extends AccountRepository {
   @override
-  Future<User> create(User obj) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> delete(User obj) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<User>> retrieveBy(Map<String, dynamic> params) {
+  Future<List<AppUser>> retrieveBy(Map<String, dynamic> params) {
     if (params["email"] != null) {
       if (params["email"] == theUser.email) {
         return Future.value([theUser]);
@@ -48,16 +38,6 @@ class MockUserRepo extends UserRepository {
     }
     return Future.value(null);
   }
-
-  @override
-  Future<User> retrieveById(String id) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> update(User obj) {
-    throw UnimplementedError();
-  }
 }
 
 void main() {
@@ -65,7 +45,7 @@ void main() {
 
   setUp(() {
     recoverPasswordUseCase = AccountRecoveryUseCaseImpl(
-        MockUserRepo(), MockAccountRecoveryRepo(), ValidEmailUseCaseImpl());
+        MockAccountRepo(), MockAccountRecoveryRepo(), ValidEmailUseCaseImpl());
   });
 
   test('RecoverPassword UseCase returns true when recovery email has been sent',
@@ -90,7 +70,7 @@ void main() {
     bool result;
     String email = "a@b.com";
     try {
-      recoverPasswordUseCase = AccountRecoveryUseCaseImpl(MockUserRepo(),
+      recoverPasswordUseCase = AccountRecoveryUseCaseImpl(MockAccountRepo(),
           MockAccountRecoveryReturnsErrorRepo(), ValidEmailUseCaseImpl());
       result = await recoverPasswordUseCase.recoverPassword(email);
     } catch (error) {

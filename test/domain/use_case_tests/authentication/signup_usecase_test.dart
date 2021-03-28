@@ -1,5 +1,7 @@
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/user_repository.dart';
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
+import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_repository.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/signup_repository.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
@@ -11,70 +13,33 @@ String name = "foo";
 String email = "foo@bar.com";
 String password = "!23@ForMe";
 Uuid id = Uuid();
-User theUser = User(Uuid(), email, password);
+AppUser theUser = AppUser("", email);
 
-class MockUserRepo extends UserRepository {
+class MockSignupRepo extends SignupRepository {
   @override
-  Future<User> create(User obj) {
-    if (obj != null) {
-      if (obj.id != null && obj.email != null && obj.password != null) {
-        return Future.value(obj);
-      }
-      return Future.error(DomainError("broken", obj));
-    }
-    return Future.error(DomainError("broken", obj));
-  }
-
-  @override
-  Future<void> delete(User obj) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<User>> retrieveBy(Map<String, dynamic> params) {
-    if (params["email"] == theUser.email &&
-        params["password"] == theUser.password) {
-      return Future.value([theUser]);
-    }
-
-    return Future.value(null);
-  }
-
-  @override
-  Future<User> retrieveById(String id) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> update(User obj) {
-    throw UnimplementedError();
+  Future<AppUser> create(UserCredentials obj) {
+    return Future.value(theUser);
   }
 }
 
-class MockUserRepoWithError extends UserRepository {
+class MockAccountRepoWithError extends SignupRepository {
   @override
-  Future<User> create(User obj) {
-    return Future.error(DomainError("broken", obj));
+  Future<AppUser> create(UserCredentials obj) {
+    return Future.error("broken");
   }
+}
 
+class MockAccountRepo extends AccountRepository {
   @override
-  Future<void> delete(User obj) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<List<User>> retrieveBy(Map<String, dynamic> params) {
+  Future<List<AppUser>> retrieveBy(Map<String, dynamic> params) {
     return Future.value(null);
   }
+}
 
+class MockAccountRepoWithAccount extends AccountRepository {
   @override
-  Future<User> retrieveById(String id) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> update(User obj) {
-    throw UnimplementedError();
+  Future<List<AppUser>> retrieveBy(Map<String, dynamic> params) {
+    return Future.value([theUser]);
   }
 }
 
@@ -82,22 +47,28 @@ void main() {
   SignupUseCase signupUseCase;
 
   setUp(() {
-    signupUseCase = SignupUseCaseImpl(
-        MockUserRepo(), ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
+    signupUseCase = SignupUseCaseImpl(MockSignupRepo(), MockAccountRepo(),
+        ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
   });
 
   test('Signup UseCase returns User when details are valid', () async {
     String newEmail = "foo@bar.com";
     String newPassword = "!2dw33....3@ForMe";
-    var result = await signupUseCase.signup(newEmail, newPassword);
+    var result =
+        await signupUseCase.signup(UserCredentials(newEmail, newPassword));
     expect(result, isNotNull);
   });
 
   test('Signup UseCase returns error when details are already in use',
       () async {
-    User result;
+    AppUser result;
+    signupUseCase = SignupUseCaseImpl(
+        MockSignupRepo(),
+        MockAccountRepoWithAccount(),
+        ValidEmailUseCaseImpl(),
+        ValidPasswordUseCaseImpl());
     try {
-      result = await signupUseCase.signup(email, password);
+      result = await signupUseCase.signup(UserCredentials(email, password));
     } catch (error) {
       expect(error, isA<EmailInUseError>());
     }
@@ -106,14 +77,14 @@ void main() {
 
   test('Signup UseCase returns an error when the signup process fails',
       () async {
-    signupUseCase = SignupUseCaseImpl(MockUserRepoWithError(),
-        ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
+    signupUseCase = SignupUseCaseImpl(MockAccountRepoWithError(),
+        MockAccountRepo(), ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
 
-    User result;
+    AppUser result;
     String email = "a@b.com";
     String password = "!23AbC__";
     try {
-      result = await signupUseCase.signup(email, password);
+      result = await signupUseCase.signup(UserCredentials(email, password));
     } catch (error) {
       expect(error, isA<DomainError>());
     }

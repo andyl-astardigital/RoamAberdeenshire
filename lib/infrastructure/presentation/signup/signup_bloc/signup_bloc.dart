@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
@@ -27,7 +28,8 @@ class SignupBlocImpl extends SignupBloc {
 
       if (event is SignupCredentialsValidatedEvent) {
         try {
-          var user = await signupUseCase.signup(event.email, event.password);
+          var user = await signupUseCase
+              .signup(UserCredentials(event.email, event.password));
           yield SignupSuccessfulState(user);
         } on EmailInUseError catch (error) {
           yield SignupErrorState(error.message);

@@ -1,4 +1,5 @@
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
+import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
@@ -9,28 +10,28 @@ String theEmail = "foo@bar.com";
 String theInvalidEmail = "foo@bar.";
 String thePassword = "!23FooBar-ForMe";
 Uuid id = Uuid();
-User theUser = User(Uuid(), theEmail, thePassword);
+AppUser theUser = AppUser("", theEmail);
 
 class MockSignupUseCaseReturnsUser extends SignupUseCase {
   @override
-  Future<User> signup(String email, String password) {
+  Future<AppUser> signup(UserCredentials credentials) {
     return Future.value(theUser);
   }
 }
 
 class MockSignupUseCaseReturnsEmailInUseError extends SignupUseCase {
   @override
-  Future<User> signup(String email, String password) {
+  Future<AppUser> signup(UserCredentials credentials) {
     return Future.error(
-        EmailInUseError(SignupUseCaseMessages.alreadyInUse, email));
+        EmailInUseError(SignupUseCaseMessages.alreadyInUse, credentials));
   }
 }
 
 class MockSignupUseCaseReturnsDomainError extends SignupUseCase {
   @override
-  Future<User> signup(String email, String password) {
+  Future<AppUser> signup(UserCredentials credentials) {
     return Future.error(
-        DomainError(SignupUseCaseMessages.problem, [email, password]));
+        DomainError(SignupUseCaseMessages.problem, credentials));
   }
 }
 

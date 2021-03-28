@@ -1,8 +1,10 @@
-import 'package:roam_aberdeenshire/domain/repository_interfaces/user_repository.dart';
+import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_repository.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/signup_repository.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
-import 'package:uuid/uuid.dart';
-import 'package:roam_aberdeenshire/domain/entities/user.dart';
+
+import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
 
 class SignupUseCaseMessages {
@@ -11,11 +13,12 @@ class SignupUseCaseMessages {
 }
 
 class EmailInUseError extends DomainError {
-  EmailInUseError(String message, String email) : super(message, email);
+  EmailInUseError(String message, UserCredentials credentials)
+      : super(message, credentials);
 }
 
 abstract class SignupUseCase {
-  Future<User> signup(String email, String password);
+  Future<AppUser> signup(UserCredentials credentials);
 }
 
 ///Performs the logic to sign up a user with the given details
@@ -26,34 +29,43 @@ abstract class SignupUseCase {
 ///Future will error with EmailInUseError if the email is already in use
 ///Future will error with DomainError on error
 class SignupUseCaseImpl implements SignupUseCase {
-  UserRepository userRepo;
-  ValidEmailUseCase validEmailUseCase;
-  ValidPasswordUseCase validPasswordUseCase;
+  final SignupRepository signupRepo;
+  final AccountRepository accountRepository;
+  final ValidEmailUseCase validEmailUseCase;
+  final ValidPasswordUseCase validPasswordUseCase;
 
-  SignupUseCaseImpl(
-      this.userRepo, this.validEmailUseCase, this.validPasswordUseCase);
+  SignupUseCaseImpl(this.signupRepo, this.accountRepository,
+      this.validEmailUseCase, this.validPasswordUseCase);
 
-  Future<User> signup(String email, String password) async {
-    if (!validEmailUseCase.validate(email)) {
-      return Future.error(DomainError("Email is invalid ", email));
+  Future<AppUser> signup(UserCredentials credentials) async {
+    if (!validEmailUseCase.validate(credentials.email)) {
+      return Future.error(DomainError("Email is invalid ", credentials));
     }
-    if (!validPasswordUseCase.validate(password)) {
-      return Future<User>.error(
-          DomainError("Password isn't strong enough", password));
+
+    if (!validPasswordUseCase.validate(credentials.password)) {
+      return Future<AppUser>.error(
+          DomainError("Password isn't strong enough", credentials));
     }
-    return Future.value(await userRepo
-        .retrieveBy(({"email": email, "password": password}))
+
+    return Future.value(await accountRepository
+        .retrieveBy(
+            ({"email": credentials.email, "password": credentials.password}))
         .then((value) async {
       if (value != null && value.isNotEmpty) {
-        return Future<User>.error(
-            EmailInUseError(SignupUseCaseMessages.alreadyInUse, email));
+        return Future<AppUser>.error(
+            EmailInUseError(SignupUseCaseMessages.alreadyInUse, credentials));
       }
-      User newUser = User(Uuid(), email, password);
-      await userRepo.create(newUser);
-      return newUser;
+
+      var user =
+          await signupRepo.create(credentials).onError((error, stackTrace) {
+        return Future<AppUser>.error(
+            DomainError(SignupUseCaseMessages.problem, credentials));
+      });
+      return user;
     }, onError: (error) {
-      return Future<User>.error(
-          DomainError(SignupUseCaseMessages.problem, [email, password]));
+      //only catch erros from the account repo otherwise the internal call gets swallowed
+      return Future<AppUser>.error(
+          DomainError(SignupUseCaseMessages.problem, credentials));
     }));
   }
 }
