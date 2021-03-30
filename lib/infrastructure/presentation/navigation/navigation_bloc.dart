@@ -18,5 +18,8 @@ class NavigationBloc extends Bloc<INavigationEvent, INavigationState> {
     if (event is NavigationShowAccountRecoveryEvent) {
       yield NavigationShowAccountRecoveryState();
     }
+    if (event is NavigationShowHomeEvent) {
+      yield NavigationShowHomeState();
+    }
   }
 }

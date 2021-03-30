@@ -8,7 +8,7 @@ void main() {
     navigationBloc = NavigationBloc();
   });
 
-  test('emits NavigationShowLoginPageEvent on NavigationShowLoginPageEvent',
+  test('emits NavigationShowLoginPageState on NavigationShowLoginPageEvent',
       () async {
     final expectedResponse = [NavigationShowLoginState()];
 
@@ -43,5 +43,17 @@ void main() {
     );
 
     navigationBloc.add(NavigationShowAccountRecoveryEvent());
+  });
+
+  test('emits NavigationShowHomePageState on NavigationShowHomePageEvent',
+      () async {
+    final expectedResponse = [NavigationShowHomeState()];
+
+    expectLater(
+      navigationBloc.stream,
+      emitsInOrder(expectedResponse),
+    );
+
+    navigationBloc.add(NavigationShowHomeEvent());
   });
 }

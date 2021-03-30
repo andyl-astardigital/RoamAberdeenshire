@@ -1,5 +1,7 @@
 import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
-import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
+import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/account_recovery_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/account_recovery/account_recovery_exports.dart';
 import 'package:test/test.dart';
@@ -22,8 +24,7 @@ class MockAccountRecoveryUseCaseReturnsNoUserFoundError
     extends AccountRecoveryUseCase {
   @override
   Future<bool> recoverPassword(String email) {
-    return Future.error(
-        NoUserFoundError(AccountRecoveryUseCaseMessages.noAccount, [email]));
+    return Future.error(NoUserFoundError(UserCredentials(email, password: "")));
   }
 }
 
@@ -31,8 +32,7 @@ class MockAccountRecoveryUseCaseReturnsDomainError
     extends AccountRecoveryUseCase {
   @override
   Future<bool> recoverPassword(String email) {
-    return Future.error(
-        DomainError(AccountRecoveryUseCaseMessages.problem, [email]));
+    return Future.error(GeneralError(email));
   }
 }
 
@@ -75,7 +75,7 @@ void main() {
       'emits AccountRecoveryErrorState on AccountRecoveryCredentialsValidatedEvent NoAccountError',
       () async {
     final expectedResponse = [
-      AccountRecoveryErrorState(AccountRecoveryUseCaseMessages.noAccount),
+      AccountRecoveryErrorState(AuthenticationErrorMessages.noUserFound),
       AccountRecoveryState()
     ];
     signupBloc = AccountRecoveryBlocImpl(
@@ -91,7 +91,7 @@ void main() {
   test('emits SignupErrorState on SignupCredentialsValidatedEvent DomainError',
       () async {
     final expectedResponse = [
-      AccountRecoveryErrorState(AccountRecoveryUseCaseMessages.problem),
+      AccountRecoveryErrorState(GeneralErrorMessages.generalError),
       AccountRecoveryState()
     ];
     signupBloc =

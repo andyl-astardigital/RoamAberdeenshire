@@ -1,6 +1,7 @@
 import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
-import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/login/login_exports.dart';
 import 'package:test/test.dart';
@@ -22,15 +23,14 @@ class MockLoginUseCaseReturnsUser extends LoginUseCase {
 class MockLoginUseCaseReturnsNoUserError extends LoginUseCase {
   @override
   Future<AppUser> login(UserCredentials credentials) {
-    return Future.error(
-        NoUserFoundError(LoginUseCaseMessages.noAccount, credentials));
+    return Future.error(NoUserFoundError(credentials));
   }
 }
 
 class MockLoginUseCaseReturnsDomainError extends LoginUseCase {
   @override
   Future<AppUser> login(UserCredentials credentials) {
-    return Future.error(DomainError(LoginUseCaseMessages.problem, credentials));
+    return Future.error(GeneralError(credentials));
   }
 }
 
@@ -65,7 +65,7 @@ void main() {
   test('emits LoginErrorState on LoginCredentialsValidatedEvent NoUserError',
       () async {
     final expectedResponse = [
-      LoginErrorState(LoginUseCaseMessages.noAccount),
+      LoginErrorState(AuthenticationErrorMessages.noUserFound),
       LoginState()
     ];
     loginBloc = LoginBlocImpl(MockLoginUseCaseReturnsNoUserError());
@@ -80,7 +80,7 @@ void main() {
   test('emits LoginErrorState on LoginCredentialsValidatedEvent DomainError',
       () async {
     final expectedResponse = [
-      LoginErrorState(LoginUseCaseMessages.problem),
+      LoginErrorState(GeneralErrorMessages.generalError),
       LoginState()
     ];
     loginBloc = LoginBlocImpl(MockLoginUseCaseReturnsDomainError());

@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
-import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/account_recovery_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
 
@@ -31,8 +32,6 @@ class AccountRecoveryBlocImpl extends AccountRecoveryBloc {
         try {
           await accountRecoveryUseCase.recoverPassword(event.email);
           yield AccountRecoverySuccessfulState();
-        } on NoUserFoundError catch (error) {
-          yield AccountRecoveryErrorState(error.message);
         } on DomainError catch (error) {
           yield AccountRecoveryErrorState(error.message);
         } catch (error) {

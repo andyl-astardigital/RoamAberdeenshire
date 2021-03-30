@@ -2,7 +2,8 @@ import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_repository.dart';
 import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/signup_repository.dart';
-import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
@@ -25,7 +26,7 @@ class MockSignupRepo extends SignupRepository {
 class MockAccountRepoWithError extends SignupRepository {
   @override
   Future<AppUser> create(UserCredentials obj) {
-    return Future.error("broken");
+    return Future.error(GeneralError(""));
   }
 }
 
@@ -54,8 +55,8 @@ void main() {
   test('Signup UseCase returns User when details are valid', () async {
     String newEmail = "foo@bar.com";
     String newPassword = "!2dw33....3@ForMe";
-    var result =
-        await signupUseCase.signup(UserCredentials(newEmail, newPassword));
+    var result = await signupUseCase
+        .signup(UserCredentials(newEmail, password: newPassword));
     expect(result, isNotNull);
   });
 
@@ -68,7 +69,8 @@ void main() {
         ValidEmailUseCaseImpl(),
         ValidPasswordUseCaseImpl());
     try {
-      result = await signupUseCase.signup(UserCredentials(email, password));
+      result = await signupUseCase
+          .signup(UserCredentials(email, password: password));
     } catch (error) {
       expect(error, isA<EmailInUseError>());
     }
@@ -84,9 +86,10 @@ void main() {
     String email = "a@b.com";
     String password = "!23AbC__";
     try {
-      result = await signupUseCase.signup(UserCredentials(email, password));
+      result = await signupUseCase
+          .signup(UserCredentials(email, password: password));
     } catch (error) {
-      expect(error, isA<DomainError>());
+      expect(error, isA<GeneralError>());
     }
     expect(result, isNull);
   });

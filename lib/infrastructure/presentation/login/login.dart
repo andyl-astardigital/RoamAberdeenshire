@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/error/app_error_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/image_appbar.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/recover_signup.dart';
 
@@ -46,6 +47,7 @@ class Login extends StatelessWidget {
                                           .add(LoginValidateEvent());
                                     })),
                             SocialLogins(),
+                            AppError()
                           ],
                         ),
                       )));

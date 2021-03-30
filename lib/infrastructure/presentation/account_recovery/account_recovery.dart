@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/error/app_error_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/navigation/navigation_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/image_appbar.dart';
 
@@ -69,6 +70,7 @@ class AccountRecovery extends StatelessWidget {
                                           .read<AccountRecoveryBloc>()
                                           .add(AccountRecoveryValidateEvent());
                                     })),
+                            AppError()
                           ],
                         ),
                       )));

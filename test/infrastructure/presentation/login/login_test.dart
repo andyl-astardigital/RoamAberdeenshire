@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/error/app_error_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/login/login_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/image_appbar.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/recover_signup.dart';
@@ -24,11 +25,24 @@ class MockCredentialsBloc extends CredentialsBloc {
   }
 }
 
-pump(WidgetTester tester, MockLoginBloc mockLoginBloc,
-    MockCredentialsBloc mockCredentialsBloc) async {
+class MockAppErrorBloc extends AppErrorBloc {
+  MockAppErrorBloc(IAppErrorState initialState) : super(initialState);
+
+  @override
+  Stream<IAppErrorState> mapEventToState(IAppErrorEvent event) {
+    throw UnimplementedError();
+  }
+}
+
+pump(
+    WidgetTester tester,
+    MockLoginBloc mockLoginBloc,
+    MockCredentialsBloc mockCredentialsBloc,
+    MockAppErrorBloc mockAppErrorBloc) async {
   await tester.pumpWidget(MultiBlocProvider(providers: [
     BlocProvider<LoginBloc>.value(value: mockLoginBloc),
     BlocProvider<CredentialsBloc>.value(value: mockCredentialsBloc),
+    BlocProvider<AppErrorBloc>.value(value: mockAppErrorBloc),
   ], child: MaterialApp(home: Scaffold(body: Login()))));
   await tester.pumpAndSettle();
 }
@@ -37,8 +51,12 @@ void main() {
   testWidgets(
       'Login shows title/image, email field, password field, sign up button, sign in button, forgot password, twitter login and facebook login',
       (WidgetTester tester) async {
-    await pump(tester, MockLoginBloc(LoginState()),
-        MockCredentialsBloc(CredentialsState.init()));
+    await pump(
+      tester,
+      MockLoginBloc(LoginState()),
+      MockCredentialsBloc(CredentialsState.init()),
+      MockAppErrorBloc(AppErrorClearErrorState()),
+    );
 
     expect(find.byKey(ImageAppBarConstants.titleImage), findsOneWidget);
     expect(find.byKey(CredentialsConstants.emailTxtKey), findsOneWidget);
@@ -50,5 +68,6 @@ void main() {
     expect(find.byKey(LoginConstants.loginButtonKey), findsOneWidget);
     expect(find.byKey(SocialLoginsConstants.twitterButtonKey), findsOneWidget);
     expect(find.byKey(SocialLoginsConstants.facebookButtonKey), findsOneWidget);
+    expect(find.byType(AppError), findsOneWidget);
   });
 }

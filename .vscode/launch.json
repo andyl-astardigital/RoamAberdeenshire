@@ -8,7 +8,7 @@
             "name": "roam_aberdeenshire",
             "request": "launch",
             "type": "dart",
-            "program": "lib/infrastructure/presentation/main.dart"
+            "program": "${workspaceFolder}/lib/infrastructure/presentation/main.dart"
         }
     ]
 }

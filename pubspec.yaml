@@ -23,14 +23,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  #firebase_core:  
-  #firebase_auth: 
-  #firebase_dynamic_links: 
-  #flutter_secure_storage: 
-  #cloud_firestore: 
-  #firebase_storage: 
-  flutter_bloc: 
-  
+
+  flutter_bloc:   
   bloc: 
   meta: 
   equatable: 

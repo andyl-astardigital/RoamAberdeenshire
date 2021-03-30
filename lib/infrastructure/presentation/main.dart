@@ -13,9 +13,10 @@ import 'package:roam_aberdeenshire/infrastructure/data/firebase_account_reposito
 import 'package:roam_aberdeenshire/infrastructure/data/firebase_login_repository.dart';
 import 'package:roam_aberdeenshire/infrastructure/data/firebase_signup_repository.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/home/home_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/theme.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
-import 'error/error_exports.dart';
+import 'error/app_error_exports.dart';
 import 'login/login_exports.dart';
 import 'account_recovery/account_recovery_exports.dart';
 import 'navigation/navigation_exports.dart';
@@ -68,18 +69,23 @@ Future<void> main() async {
         ValidEmailUseCaseImpl(),
         ValidPasswordUseCaseImpl()));
 
-    var errorBloc = ErrorBlocImpl();
+    var errorBloc = AppErrorBlocImpl();
 
     var accountRecoveryBloc = AccountRecoveryBlocImpl(
         AccountRecoveryUseCaseImpl(accountRepository, accountRecoveryRepository,
             ValidEmailUseCaseImpl()));
+
+    var homeBloc = HomeBlocImpl();
 
     loginBloc.stream.listen((state) {
       if (state is LoginValidateState) {
         credentialsBloc.add(CredentialsValidateLoginEvent());
       }
       if (state is LoginErrorState) {
-        errorBloc.add(ErrorShowErrorEvent(state.error));
+        errorBloc.add(AppErrorShowErrorEvent(state.error));
+      }
+      if (state is LoginSuccessfulState) {
+        navigationBloc.add(NavigationShowHomeEvent());
       }
     });
 
@@ -88,7 +94,10 @@ Future<void> main() async {
         credentialsBloc.add(CredentialsValidateSignupEvent());
       }
       if (state is SignupErrorState) {
-        errorBloc.add(ErrorShowErrorEvent(state.error));
+        errorBloc.add(AppErrorShowErrorEvent(state.error));
+      }
+      if (state is SignupSuccessfulState) {
+        navigationBloc.add(NavigationShowHomeEvent());
       }
     });
 
@@ -139,9 +148,14 @@ Future<void> main() async {
             return accountRecoveryBloc;
           },
         ),
-        BlocProvider<ErrorBloc>(
+        BlocProvider<AppErrorBloc>(
           create: (context) {
             return errorBloc;
+          },
+        ),
+        BlocProvider<HomeBloc>(
+          create: (context) {
+            return homeBloc;
           },
         ),
       ],
@@ -167,7 +181,7 @@ class MyApp extends StatelessWidget {
     } else if (state is NavigationShowAccountRecoveryState) {
       page = AccountRecovery();
     } else if (state is NavigationShowHomeState) {
-      page = Container();
+      page = Home();
     } else
       page = Login();
 

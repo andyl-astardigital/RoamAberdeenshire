@@ -1,7 +1,8 @@
 import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/login_respository.dart';
-import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_usecase.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
@@ -26,10 +27,10 @@ class MockLoginRepoWithNoUserError extends LoginRepository {
   }
 }
 
-class MockLoginRepoWithDomainError extends LoginRepository {
+class MockLoginRepoWithGeneralError extends LoginRepository {
   @override
   Future<AppUser> create(UserCredentials obj) {
-    return Future.error("nope");
+    return Future.error(GeneralError(""));
   }
 }
 
@@ -41,7 +42,8 @@ void main() {
   });
 
   test('Login UseCase returns User when details are correct', () async {
-    var result = await loginUseCase.login(UserCredentials(email, password));
+    var result =
+        await loginUseCase.login(UserCredentials(email, password: password));
 
     expect(result, isNotNull);
   });
@@ -52,7 +54,8 @@ void main() {
     String password = "!23AbC__";
     loginUseCase = LoginUseCaseImpl(MockLoginRepoWithNoUserError());
     try {
-      result = await loginUseCase.login(UserCredentials(email, password));
+      result =
+          await loginUseCase.login(UserCredentials(email, password: password));
     } catch (error) {
       expect(error, isA<NoUserFoundError>());
     }
@@ -60,15 +63,16 @@ void main() {
   });
 
   test('Login UseCase returns an error when the login process fails', () async {
-    loginUseCase = LoginUseCaseImpl(MockLoginRepoWithDomainError());
+    loginUseCase = LoginUseCaseImpl(MockLoginRepoWithGeneralError());
 
     AppUser result;
     String email = "a@b.com";
     String password = "!23AbC__";
     try {
-      result = await loginUseCase.login(UserCredentials(email, password));
+      result =
+          await loginUseCase.login(UserCredentials(email, password: password));
     } catch (error) {
-      expect(error, isA<DomainError>());
+      expect(error, isA<GeneralError>());
     }
     expect(result, isNull);
   });

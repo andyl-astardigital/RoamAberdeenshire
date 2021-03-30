@@ -1,6 +1,7 @@
 import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
-import 'package:roam_aberdeenshire/domain/shared/domain_error.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
+import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
 import 'package:test/test.dart';
@@ -22,16 +23,14 @@ class MockSignupUseCaseReturnsUser extends SignupUseCase {
 class MockSignupUseCaseReturnsEmailInUseError extends SignupUseCase {
   @override
   Future<AppUser> signup(UserCredentials credentials) {
-    return Future.error(
-        EmailInUseError(SignupUseCaseMessages.alreadyInUse, credentials));
+    return Future.error(EmailInUseError(credentials));
   }
 }
 
 class MockSignupUseCaseReturnsDomainError extends SignupUseCase {
   @override
   Future<AppUser> signup(UserCredentials credentials) {
-    return Future.error(
-        DomainError(SignupUseCaseMessages.problem, credentials));
+    return Future.error(GeneralError(credentials));
   }
 }
 
@@ -67,7 +66,7 @@ void main() {
       'emits SignupErrorState on SignupCredentialsValidatedEvent EailInUseError',
       () async {
     final expectedResponse = [
-      SignupErrorState(SignupUseCaseMessages.alreadyInUse),
+      SignupErrorState(AuthenticationErrorMessages.emailInUseMessage),
       SignupState()
     ];
     signupBloc = SignupBlocImpl(MockSignupUseCaseReturnsEmailInUseError());
@@ -82,7 +81,7 @@ void main() {
   test('emits SignupErrorState on SignupCredentialsValidatedEvent DomainError',
       () async {
     final expectedResponse = [
-      SignupErrorState(SignupUseCaseMessages.problem),
+      SignupErrorState(GeneralErrorMessages.generalError),
       SignupState()
     ];
     signupBloc = SignupBlocImpl(MockSignupUseCaseReturnsDomainError());
