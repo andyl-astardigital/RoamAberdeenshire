@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/email_signup_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
 
 import '../signup_exports.dart';
@@ -11,7 +11,7 @@ abstract class SignupBloc extends Bloc<ISignupEvent, ISignupState> {
 }
 
 class SignupBlocImpl extends SignupBloc {
-  final SignupUseCase signupUseCase;
+  final EmailSignupUseCase signupUseCase;
 
   SignupBlocImpl(this.signupUseCase) : super(SignupState());
 

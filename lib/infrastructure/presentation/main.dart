@@ -3,16 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/authentication/account_recovery_usecase.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_usecase.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
-import 'package:roam_aberdeenshire/infrastructure/data/firebase_account_recovery_repository.dart';
-import 'package:roam_aberdeenshire/infrastructure/data/firebase_account_repository.dart';
-import 'package:roam_aberdeenshire/infrastructure/data/firebase_login_repository.dart';
-import 'package:roam_aberdeenshire/infrastructure/data/firebase_signup_repository.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/authentication_usecase_exports.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/validation/validation_usecase_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/data/repository_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
+import 'package:roam_aberdeenshire/infrastructure/presentation/facebook/facebook_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/home/home_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/theme.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
@@ -52,10 +48,13 @@ Future<void> main() async {
 
   Widget buildBlocs() {
     //instatiate
-    var loginRepository = FirebaseLoginRepository();
-    var signupRepository = FirebaseSignupRepository();
-    var accountRepository = FirebaseAccountRepository();
-    var accountRecoveryRepository = FirebaseAccountRecoveryRepository();
+    var loginRepository = FirebaseLoginRepository(FirebaseAuth.instance);
+    var signupRepository = FirebaseSignupRepository(FirebaseAuth.instance);
+    var accountRepository = FirebaseAccountRepository(FirebaseAuth.instance);
+    var accountRecoveryRepository =
+        FirebaseAccountRecoveryRepository(FirebaseAuth.instance);
+    var tokenLoginRepository =
+        FacebookFirebaseLoginRepository(FirebaseAuth.instance);
 
     var navigationBloc = NavigationBloc();
     var loginBloc = LoginBlocImpl(LoginUseCaseImpl(loginRepository));
@@ -63,7 +62,7 @@ Future<void> main() async {
     var credentialsBloc = CredentialsBlocImpl(
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
 
-    var signupBloc = SignupBlocImpl(SignupUseCaseImpl(
+    var signupBloc = SignupBlocImpl(EmailSignupUseCaseImpl(
         signupRepository,
         accountRepository,
         ValidEmailUseCaseImpl(),
@@ -77,6 +76,16 @@ Future<void> main() async {
 
     var homeBloc = HomeBlocImpl();
 
+    var facebookBloc = FacebookBlocImpl(
+        tokenLoginRepository, FacebookLoginWrapperImpl(FacebookLogin()));
+
+    facebookBloc.stream.listen((state) {
+      if (state is FacebookLoggedInState) {
+        navigationBloc.add(NavigationShowHomeEvent());
+        homeBloc.add(HomeUserUpdatedEvent(state.user));
+      }
+    });
+
     loginBloc.stream.listen((state) {
       if (state is LoginValidateState) {
         credentialsBloc.add(CredentialsValidateLoginEvent());
@@ -86,6 +95,7 @@ Future<void> main() async {
       }
       if (state is LoginSuccessfulState) {
         navigationBloc.add(NavigationShowHomeEvent());
+        homeBloc.add(HomeUserUpdatedEvent(state.user));
       }
     });
 
@@ -98,6 +108,7 @@ Future<void> main() async {
       }
       if (state is SignupSuccessfulState) {
         navigationBloc.add(NavigationShowHomeEvent());
+        homeBloc.add(HomeUserUpdatedEvent(state.user));
       }
     });
 
@@ -156,6 +167,11 @@ Future<void> main() async {
         BlocProvider<HomeBloc>(
           create: (context) {
             return homeBloc;
+          },
+        ),
+        BlocProvider<FacebookBloc>(
+          create: (context) {
+            return facebookBloc;
           },
         ),
       ],

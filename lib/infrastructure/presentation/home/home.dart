@@ -27,7 +27,7 @@ class Home extends StatelessWidget {
                       child: SingleChildScrollView(
                         child: ListView(
                           shrinkWrap: true,
-                          children: [Text("Hysies!")],
+                          children: [Text("Hysies ${state.user.email}!")],
                         ),
                       )));
             }

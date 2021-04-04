@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
-import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/login/login_exports.dart';

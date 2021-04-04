@@ -12,8 +12,9 @@ class AuthenticationErrorMessages {
 }
 
 class EmailInUseError extends DomainError {
-  EmailInUseError(UserCredentials credentials)
-      : super(AuthenticationErrorMessages.emailInUseMessage, credentials);
+  EmailInUseError(String email, {List<String> providers})
+      : super(
+            AuthenticationErrorMessages.emailInUseMessage, [email, providers]);
 }
 
 class NoUserFoundError extends DomainError {

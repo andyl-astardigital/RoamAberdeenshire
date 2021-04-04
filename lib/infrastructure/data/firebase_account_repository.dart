@@ -5,7 +5,9 @@ import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/validation_errors.dart';
 
 class FirebaseAccountRepository extends AccountRepository {
-  FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth auth;
+
+  FirebaseAccountRepository(this.auth);
 
   @override
   Future<List<AppUser>> retrieveBy(Map<String, dynamic> params) async {

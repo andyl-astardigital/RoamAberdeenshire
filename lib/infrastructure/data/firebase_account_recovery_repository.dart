@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_recovery_repository.dart';
 
 class FirebaseAccountRecoveryRepository extends AccountRecoveryRepository {
-  FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth auth;
+
+  FirebaseAccountRecoveryRepository(this.auth);
 
   @override
   Future<bool> create(AccountRecovery obj) {

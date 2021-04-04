@@ -7,7 +7,9 @@ import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/validation_errors.dart';
 
 class FirebaseLoginRepository extends LoginRepository {
-  FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth auth;
+
+  FirebaseLoginRepository(this.auth);
 
   @override
   Future<AppUser> create(UserCredentials obj) async {

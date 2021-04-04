@@ -1,9 +1,7 @@
 import 'package:bloc/bloc.dart';
-import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/account_recovery_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
-
 import '../account_recovery_exports.dart';
 
 abstract class AccountRecoveryBloc

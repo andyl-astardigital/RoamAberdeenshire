@@ -2,7 +2,7 @@ import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/email_signup_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/signup/signup_exports.dart';
 import 'package:test/test.dart';
 import 'package:uuid/uuid.dart';
@@ -13,21 +13,21 @@ String thePassword = "!23FooBar-ForMe";
 Uuid id = Uuid();
 AppUser theUser = AppUser("", theEmail);
 
-class MockSignupUseCaseReturnsUser extends SignupUseCase {
+class MockSignupUseCaseReturnsUser extends EmailSignupUseCase {
   @override
   Future<AppUser> signup(UserCredentials credentials) {
     return Future.value(theUser);
   }
 }
 
-class MockSignupUseCaseReturnsEmailInUseError extends SignupUseCase {
+class MockSignupUseCaseReturnsEmailInUseError extends EmailSignupUseCase {
   @override
   Future<AppUser> signup(UserCredentials credentials) {
-    return Future.error(EmailInUseError(credentials));
+    return Future.error(EmailInUseError(credentials.email));
   }
 }
 
-class MockSignupUseCaseReturnsDomainError extends SignupUseCase {
+class MockSignupUseCaseReturnsDomainError extends EmailSignupUseCase {
   @override
   Future<AppUser> signup(UserCredentials credentials) {
     return Future.error(GeneralError(credentials));

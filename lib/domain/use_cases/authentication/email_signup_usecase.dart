@@ -7,7 +7,7 @@ import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_useca
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
 import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 
-abstract class SignupUseCase {
+abstract class EmailSignupUseCase {
   Future<AppUser> signup(UserCredentials credentials);
 }
 
@@ -18,13 +18,13 @@ abstract class SignupUseCase {
 ///Future will error with InvalidPasswordError if the password is invalid
 ///Future will error with EmailInUseError if the email is already in use
 ///Future will error with GeneralError on error
-class SignupUseCaseImpl implements SignupUseCase {
+class EmailSignupUseCaseImpl implements EmailSignupUseCase {
   final SignupRepository signupRepo;
   final AccountRepository accountRepository;
   final ValidEmailUseCase validEmailUseCase;
   final ValidPasswordUseCase validPasswordUseCase;
 
-  SignupUseCaseImpl(this.signupRepo, this.accountRepository,
+  EmailSignupUseCaseImpl(this.signupRepo, this.accountRepository,
       this.validEmailUseCase, this.validPasswordUseCase);
 
   Future<AppUser> signup(UserCredentials credentials) async {
@@ -40,7 +40,7 @@ class SignupUseCaseImpl implements SignupUseCase {
         ({"email": credentials.email, "password": credentials.password}));
 
     if (account != null && account.isNotEmpty) {
-      return Future<AppUser>.error(EmailInUseError(credentials));
+      return Future<AppUser>.error(EmailInUseError(credentials.email));
     }
     return await signupRepo.create(credentials);
   }

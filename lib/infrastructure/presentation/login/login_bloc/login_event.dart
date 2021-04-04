@@ -10,6 +10,14 @@ class LoginValidateEvent extends ILoginEvent {
   String toString() => 'LoginValidateEvent{  }';
 }
 
+class LoginWithFacebookEvent extends ILoginEvent {
+  @override
+  List<Object> get props => [];
+
+  @override
+  String toString() => 'LoginWithFacebookEvent{  }';
+}
+
 class LoginCredentialsValidatedEvent extends ILoginEvent {
   final String email;
   final String password;

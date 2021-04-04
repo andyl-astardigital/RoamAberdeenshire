@@ -4,7 +4,7 @@ import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/a
 import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/signup_repository.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
-import 'package:roam_aberdeenshire/domain/use_cases/authentication/signup_usecase.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/email_signup_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
 import 'package:test/test.dart';
@@ -45,10 +45,10 @@ class MockAccountRepoWithAccount extends AccountRepository {
 }
 
 void main() {
-  SignupUseCase signupUseCase;
+  EmailSignupUseCase signupUseCase;
 
   setUp(() {
-    signupUseCase = SignupUseCaseImpl(MockSignupRepo(), MockAccountRepo(),
+    signupUseCase = EmailSignupUseCaseImpl(MockSignupRepo(), MockAccountRepo(),
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
   });
 
@@ -63,7 +63,7 @@ void main() {
   test('Signup UseCase returns error when details are already in use',
       () async {
     AppUser result;
-    signupUseCase = SignupUseCaseImpl(
+    signupUseCase = EmailSignupUseCaseImpl(
         MockSignupRepo(),
         MockAccountRepoWithAccount(),
         ValidEmailUseCaseImpl(),
@@ -79,7 +79,7 @@ void main() {
 
   test('Signup UseCase returns an error when the signup process fails',
       () async {
-    signupUseCase = SignupUseCaseImpl(MockAccountRepoWithError(),
+    signupUseCase = EmailSignupUseCaseImpl(MockAccountRepoWithError(),
         MockAccountRepo(), ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
 
     AppUser result;

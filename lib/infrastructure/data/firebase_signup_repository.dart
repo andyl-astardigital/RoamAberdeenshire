@@ -7,8 +7,9 @@ import 'package:roam_aberdeenshire/domain/shared/errors/domain_error.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/validation_errors.dart';
 
 class FirebaseSignupRepository extends SignupRepository {
-  FirebaseAuth auth = FirebaseAuth.instance;
+  final FirebaseAuth auth;
 
+  FirebaseSignupRepository(this.auth);
   @override
   Future<AppUser> create(UserCredentials obj) async {
     try {
@@ -21,7 +22,8 @@ class FirebaseSignupRepository extends SignupRepository {
         return Future.error(InvalidPasswordError(obj.password));
       }
       if (e.code == 'email-already-in-use') {
-        return Future.error(EmailInUseError(obj));
+        var providers = await auth.fetchSignInMethodsForEmail(obj.email);
+        return Future.error(EmailInUseError(obj.email, providers: providers));
       }
       return Future.error(GeneralError(e.toString()));
     } catch (e) {
