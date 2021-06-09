@@ -3,7 +3,9 @@ import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'domain_error.dart';
 
 class AuthenticationErrorMessages {
-  static String emailInUseMessage = "The email address is already in use.";
+  static String emailInUse = "The email address is already in use.";
+  static String emailInUseByTheseProviders =
+      "The email address is already in use. Please use one of these Login methods: ";
   static String noUserFound = "There is no account with the given details.";
   static String loginProblem =
       "There was a problem while Logging in. Check the details and try again.";
@@ -12,9 +14,14 @@ class AuthenticationErrorMessages {
 }
 
 class EmailInUseError extends DomainError {
-  EmailInUseError(String email, {List<String> providers})
-      : super(
-            AuthenticationErrorMessages.emailInUseMessage, [email, providers]);
+  EmailInUseError(String email)
+      : super(AuthenticationErrorMessages.emailInUse, email);
+}
+
+class EmailInUsedByOtherProvidersError extends DomainError {
+  final List<String> providers;
+  EmailInUsedByOtherProvidersError(String email, this.providers)
+      : super(AuthenticationErrorMessages.emailInUseByTheseProviders, email);
 }
 
 class NoUserFoundError extends DomainError {

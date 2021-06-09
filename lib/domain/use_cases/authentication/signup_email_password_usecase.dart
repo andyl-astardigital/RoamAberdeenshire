@@ -1,31 +1,30 @@
 import 'package:roam_aberdeenshire/domain/entities/user_credentials.dart';
 import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/account_repository.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/signup_repository.dart';
+import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/email_password_signup_repository.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/authentication_errors.dart';
 import 'package:roam_aberdeenshire/domain/shared/errors/validation_errors.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_email_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/valid_password_usecase.dart';
 import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
 
-abstract class EmailSignupUseCase {
+import 'authentication_usecase_exports.dart';
+
+abstract class SignupEmailPasswordUseCase {
   Future<AppUser> signup(UserCredentials credentials);
 }
 
-///Performs the logic to sign up a user with the given details
-///
-///Future will resolve to the User object for the given details on success
-///Future will error with InvalidEmailError if the email is invalid
-///Future will error with InvalidPasswordError if the password is invalid
-///Future will error with EmailInUseError if the email is already in use
-///Future will error with GeneralError on error
-class EmailSignupUseCaseImpl implements EmailSignupUseCase {
-  final SignupRepository signupRepo;
-  final AccountRepository accountRepository;
+class SignupEmailPasswordUseCaseImpl implements SignupEmailPasswordUseCase {
+  final EmailPasswordSignupRepository signupRepo;
+ 
+  final AccountProvidersUseCase accountProvidersUseCase;
   final ValidEmailUseCase validEmailUseCase;
   final ValidPasswordUseCase validPasswordUseCase;
 
-  EmailSignupUseCaseImpl(this.signupRepo, this.accountRepository,
-      this.validEmailUseCase, this.validPasswordUseCase);
+  SignupEmailPasswordUseCaseImpl(
+      this.signupRepo,
+      this.validEmailUseCase,
+      this.validPasswordUseCase,
+      this.accountProvidersUseCase);
 
   Future<AppUser> signup(UserCredentials credentials) async {
     if (!validEmailUseCase.validate(credentials.email)) {
@@ -36,12 +35,13 @@ class EmailSignupUseCaseImpl implements EmailSignupUseCase {
       return Future<AppUser>.error(InvalidPasswordError(credentials.password));
     }
 
-    var account = await accountRepository.retrieveBy(
-        ({"email": credentials.email, "password": credentials.password}));
+    var providers =
+        await accountProvidersUseCase.getProviders(credentials.email);
 
-    if (account != null && account.isNotEmpty) {
-      return Future<AppUser>.error(EmailInUseError(credentials.email));
-    }
+    if (providers.isNotEmpty)
+      return Future<AppUser>.error(
+          EmailInUsedByOtherProvidersError(credentials.email, providers));
+
     return await signupRepo.create(credentials);
   }
 }

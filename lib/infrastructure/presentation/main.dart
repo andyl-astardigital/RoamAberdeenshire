@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/authentication/authentication_usecase_exports.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_token_usecase.dart';
 import 'package:roam_aberdeenshire/domain/use_cases/validation/validation_usecase_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/data/repository_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/credentials/credentials_exports.dart';
@@ -48,36 +49,52 @@ Future<void> main() async {
 
   Widget buildBlocs() {
     //instatiate
-    var loginRepository = FirebaseLoginRepository(FirebaseAuth.instance);
-    var signupRepository = FirebaseSignupRepository(FirebaseAuth.instance);
-    var accountRepository = FirebaseAccountRepository(FirebaseAuth.instance);
+    var loginRepository =
+        FirebaseEmailPasswordLoginRepository(FirebaseAuth.instance);
+    var signupRepository =
+        FirebaseEmailPasswordSignupRepository(FirebaseAuth.instance);
+   // var accountRepository = FirebaseAccountRepository(FirebaseAuth.instance);
     var accountRecoveryRepository =
         FirebaseAccountRecoveryRepository(FirebaseAuth.instance);
     var tokenLoginRepository =
         FacebookFirebaseLoginRepository(FirebaseAuth.instance);
+    var accountProvidersRepository =
+        FirebaseAccountProvidersRepository(FirebaseAuth.instance);
 
     var navigationBloc = NavigationBloc();
-    var loginBloc = LoginBlocImpl(LoginUseCaseImpl(loginRepository));
+    var loginBloc = LoginBlocImpl(LoginEmailPasswordUseCaseImpl(
+        loginRepository,
+        AccountProvidersUseCaseImpl(
+            accountProvidersRepository, ValidEmailUseCaseImpl())));
 
     var credentialsBloc = CredentialsBlocImpl(
         ValidEmailUseCaseImpl(), ValidPasswordUseCaseImpl());
 
-    var signupBloc = SignupBlocImpl(EmailSignupUseCaseImpl(
+    var signupBloc = SignupBlocImpl(SignupEmailPasswordUseCaseImpl(
         signupRepository,
-        accountRepository,
+       
         ValidEmailUseCaseImpl(),
-        ValidPasswordUseCaseImpl()));
+        ValidPasswordUseCaseImpl(),
+        AccountProvidersUseCaseImpl(
+            accountProvidersRepository, ValidEmailUseCaseImpl())));
 
     var errorBloc = AppErrorBlocImpl();
 
     var accountRecoveryBloc = AccountRecoveryBlocImpl(
-        AccountRecoveryUseCaseImpl(accountRepository, accountRecoveryRepository,
-            ValidEmailUseCaseImpl()));
+        AccountRecoveryUseCaseImpl(
+            accountRecoveryRepository,
+            ValidEmailUseCaseImpl(),
+            AccountProvidersUseCaseImpl(
+                accountProvidersRepository, ValidEmailUseCaseImpl())));
 
     var homeBloc = HomeBlocImpl();
 
     var facebookBloc = FacebookBlocImpl(
-        tokenLoginRepository, FacebookLoginWrapperImpl(FacebookLogin()));
+        LoginTokenUseCaseImpl(
+            tokenLoginRepository,
+            AccountProvidersUseCaseImpl(
+                accountProvidersRepository, ValidEmailUseCaseImpl())),
+        FacebookLoginWrapperImpl(FacebookLogin()));
 
     facebookBloc.stream.listen((state) {
       if (state is FacebookLoggedInState) {

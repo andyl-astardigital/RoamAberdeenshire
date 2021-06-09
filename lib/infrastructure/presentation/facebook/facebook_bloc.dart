@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/token_login_respository.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_token_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
 import 'facebook_exports.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
-//mocking
+//mocking, we want to inject these things into the bloc so we can unit tests
+//without a tedious mocking framework and deep mocking
 class FacebookLoginRes {
   final String token;
   final String error;
@@ -36,10 +37,10 @@ abstract class FacebookBloc extends Bloc<IFacebookEvent, IFacebookState> {
 }
 
 class FacebookBlocImpl extends FacebookBloc {
-  final TokenLoginRepository tokenLoginRepository;
+  final LoginTokenUseCase loginTokenUseCase;
   final FacebookLoginWrapper facebookLogin;
 
-  FacebookBlocImpl(this.tokenLoginRepository, this.facebookLogin)
+  FacebookBlocImpl(this.loginTokenUseCase, this.facebookLogin)
       : super(FacebookLoggedOutState());
 
   @override
@@ -56,7 +57,7 @@ class FacebookBlocImpl extends FacebookBloc {
         switch (result.status) {
           case FacebookLoginStatus.loggedIn:
             final token = result.token;
-            var user = await tokenLoginRepository.create(token);
+            var user = await loginTokenUseCase.login(token, "facebook.com");
             yield FacebookLoggedInState(user);
             break;
           case FacebookLoginStatus.cancelledByUser:

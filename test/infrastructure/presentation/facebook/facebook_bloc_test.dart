@@ -1,6 +1,6 @@
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:roam_aberdeenshire/domain/entities/app_user.dart';
-import 'package:roam_aberdeenshire/domain/repository_interfaces/authentication/token_login_respository.dart';
+import 'package:roam_aberdeenshire/domain/use_cases/authentication/login_token_usecase.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/facebook/facebook_exports.dart';
 import 'package:roam_aberdeenshire/infrastructure/presentation/shared/ui_constants.dart';
 import 'package:test/test.dart';
@@ -10,9 +10,9 @@ final String token = "ascbasdla";
 final String email = "a@b.com";
 final user = AppUser(id, email);
 
-class MockTokenRespositoryWithUser extends TokenLoginRepository {
+class MockLoginTokenWithUser extends LoginTokenUseCase {
   @override
-  Future<AppUser> create(String obj) {
+  Future<AppUser> login(String token, String provider) {
     return Future.value(user);
   }
 }
@@ -45,8 +45,8 @@ void main() {
   FacebookBloc facebookBloc;
 
   test('emits FacebookLoginEvent on FacebookLoggedInState', () async {
-    facebookBloc = FacebookBlocImpl(
-        MockTokenRespositoryWithUser(), MockFacebookLoginWrapper());
+    facebookBloc =
+        FacebookBlocImpl(MockLoginTokenWithUser(), MockFacebookLoginWrapper());
 
     final expectedResponse = [FacebookLoggedInState(user)];
 
@@ -60,7 +60,7 @@ void main() {
 
   test('emits FacebookLoginEvent on FacebookLoginCancelledState', () async {
     facebookBloc = FacebookBlocImpl(
-        MockTokenRespositoryWithUser(), MockFacebookLoginWrapperCancelled());
+        MockLoginTokenWithUser(), MockFacebookLoginWrapperCancelled());
 
     final expectedResponse = [FacebookLoginCancelledState()];
 
@@ -74,7 +74,7 @@ void main() {
 
   test('emits FacebookErrorState on FacebookLoginCancelledState', () async {
     facebookBloc = FacebookBlocImpl(
-        MockTokenRespositoryWithUser(), MockFacebookLoginWrapperWithError());
+        MockLoginTokenWithUser(), MockFacebookLoginWrapperWithError());
 
     final expectedResponse = [FacebookErrorState(UIConstants.genericError)];
 
